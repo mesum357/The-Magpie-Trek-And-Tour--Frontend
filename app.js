@@ -13,7 +13,6 @@ const nodemailer = require('nodemailer');
 const multer = require('multer');
 const fs = require('fs');
 
-// mongodb+srv://mesum357:pDliM118811@cluster0.h3knh.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
 
 // Import Mongoose models from db.js
 const { User, Gallery, TourPackage, Hiking, Review, Booking, PaymentRequest } = require('./db');
