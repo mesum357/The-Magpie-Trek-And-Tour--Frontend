@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -12,39 +13,41 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 
   <style>
-    :root{
+    :root {
       --accent-navy: #0b1a1a;
       --muted: #6b6f72;
       --card-bg: #ffffff;
       --primary-btn: #0b1a2b;
-      --accent-border: rgba(47,88,69,0.12);
+      --accent-border: rgba(47, 88, 69, 0.12);
     }
 
-    body{
+    body {
       font-family: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, Arial;
       margin: 0;
       color: var(--accent-navy);
       background: #fff;
     }
 
-    .section-wrapper{
+    .section-wrapper {
       padding: 72px 40px 90px;
       text-align: center;
     }
 
-    .slider-title{
+    .slider-title {
       font-weight: 700;
       font-size: 42px;
       line-height: 1.05;
       margin-bottom: 12px;
       color: var(--accent-navy);
+      text-shadow: none !important;
     }
 
-    .hero-sub{
+    .slider-desc {
       max-width: 980px;
       margin: 0 auto 28px;
-      color: var(--muted);
+      color: #000000 !important;
       font-size: 15px;
+      text-shadow: none !important;
     }
 
     /* Multi-item responsive carousel (custom) */
@@ -69,8 +72,8 @@
       background: var(--card-bg);
       border-radius: 12px;
       min-width: 100%;
-      box-shadow: 0 22px 36px rgba(17,28,42,0.06);
-      border: 1px solid rgba(20,40,70,0.03);
+      box-shadow: 0 22px 36px rgba(17, 28, 42, 0.06);
+      border: 1px solid rgba(20, 40, 70, 0.03);
       display: flex;
       flex-direction: column;
       overflow: hidden;
@@ -79,49 +82,52 @@
     /* card inner sizes adjust based on visible cards (JS sets sizes too) */
     .pkg-image {
       position: relative;
-      height: 190px;
+      height: 280px;
       background: #f3f6fb;
       overflow: hidden;
     }
+
     .pkg-image img {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      display:block;
+      display: block;
       transition: transform 0.35s ease;
     }
 
     /* Hover zoom effect */
-    .pkg-card:hover .pkg-image img { transform: scale(1.08); }
+    .pkg-card:hover .pkg-image img {
+      transform: scale(1.08);
+    }
 
     .wishlist {
       position: absolute;
       top: 12px;
       left: 12px;
-      display:flex;
-      align-items:center;
-      gap:8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
       color: #0b1a1a;
-      background: rgba(255,255,255,0.88);
+      background: rgba(255, 255, 255, 0.88);
       padding: 6px 10px;
       border-radius: 20px;
       font-size: 14px;
       backdrop-filter: blur(4px);
-      box-shadow: 0 1px 0 rgba(0,0,0,0.03);
+      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.03);
     }
 
     .pkg-body {
-      padding: 18px;
+      padding: 24px;
       text-align: left;
-      display:flex;
-      flex-direction:column;
-      gap:10px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
       flex: 1 1 auto;
     }
 
     .pkg-title {
       font-weight: 700;
-      font-size: 18px;
+      font-size: 24px;
       color: var(--accent-navy);
       line-height: 1.15;
     }
@@ -129,9 +135,9 @@
     .pkg-meta {
       font-size: 13px;
       color: var(--muted);
-      display:flex;
-      gap:8px;
-      align-items:center;
+      display: flex;
+      gap: 8px;
+      align-items: center;
     }
 
     .pkg-stars {
@@ -140,7 +146,7 @@
     }
 
     .pkg-footer {
-      display:flex;
+      display: flex;
       justify-content: space-between;
       align-items: center;
       gap: 12px;
@@ -149,7 +155,7 @@
 
     .price {
       font-weight: 700;
-      font-size: 17px;
+      font-size: 20px;
     }
 
     .btn-explore {
@@ -163,7 +169,7 @@
 
     .explore-more {
       margin-top: 30px;
-      display:inline-block;
+      display: inline-block;
       padding: 10px 24px;
       border-radius: 8px;
       border: 1.6px solid #cfe3d6;
@@ -173,82 +179,92 @@
     }
 
     /* spacing for cards when multiple visible */
-    .card-wrapper { flex: 0 0 auto; width: 100%; }
+    .card-wrapper {
+      flex: 0 0 auto;
+      width: 100%;
+    }
 
     /* responsiveness: we'll control visible count with JS; some size hints for small screens */
-    @media (max-width: 1199px){
-      .hero-title{ font-size:38px; }
-      .pkg-image{ height:180px; }
+    @media (max-width: 1199px) {
+      .hero-title {
+        font-size: 38px;
+      }
+
+      .pkg-image {
+        height: 180px;
+      }
     }
-    @media (max-width: 991px){
-      .hero-title{ font-size:34px; }
-      .pkg-image{ height:170px; }
+
+    @media (max-width: 991px) {
+      .hero-title {
+        font-size: 34px;
+      }
+
+      .pkg-image {
+        height: 170px;
+      }
     }
-    @media (max-width: 575px){
-      .section-wrapper{ padding: 36px 18px 50px; }
-      .hero-title{ font-size:26px; }
-      .pkg-image{ height:150px; }
-      .wishlist{ font-size:13px; padding:6px 8px; }
+
+    @media (max-width: 575px) {
+      .section-wrapper {
+        padding: 36px 18px 50px;
+      }
+
+      .hero-title {
+        font-size: 26px;
+      }
+
+      .pkg-image {
+        height: 150px;
+      }
+
+      .wishlist {
+        font-size: 13px;
+        padding: 6px 8px;
+      }
     }
 
     /* small subtle fade effect under carousel to mimic original soft shadow */
     .carousel-bottom-fade {
       height: 40px;
       margin-top: -6px;
-      background: linear-gradient(180deg, rgba(255,255,255,0), rgba(243,246,251,0.8));
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(243, 246, 251, 0.8));
       pointer-events: none;
     }
   </style>
 </head>
+
 <body>
 
   <section class="section-wrapper">
     <div class="container">
       <h2 class="slider-title">Unleash Your Spirit Of Adventure In The Untamed North</h2>
-      <p class="hero-sub">From the rugged peaks of the Karakoram to the serene valleys dotted with wildflowers, The Magpie Treks & Tours is your gateway to Pakistan's breathtaking northern landscapes. Dive into unforgettable experiences, crafted for the true adventurer.</p>
+      <p class="slider-desc">From the rugged peaks of the Karakoram to the serene valleys dotted with wildflowers, The
+        Magpie Treks & Tours is your gateway to Pakistan's breathtaking northern landscapes. Dive into unforgettable
+        experiences, crafted for the true adventurer.</p>
 
-      <% if (typeof tourPackages !== 'undefined' && tourPackages.length > 0) { %>
-      <!-- responsive multi-item carousel -->
-      <div class="multi-carousel" id="multiCarousel" data-interval="4000">
-        <div class="carousel-viewport">
-          <div class="carousel-track">
+      <% if (typeof tourPackages !=='undefined' && tourPackages.length> 0) { %>
+        <!-- responsive multi-item carousel -->
+        <div class="multi-carousel" id="multiCarousel" data-interval="4000">
+          <div class="carousel-viewport">
+            <div class="carousel-track">
 
               <!-- Dynamic tour packages from database -->
-              <% tourPackages.forEach(function(package) { 
-                   // Resolve image URL strictly from Package Image (package.imageUrl)
-                   const base = (adminBaseUrl || '').replace(/\/$/, '');
-                   const raw = (package.imageUrl || '').trim();
-                   let resolvedImg = '/images/hero-img1.webp';
-                   if (raw) {
-                     if (raw.startsWith('data:')) {
-                       resolvedImg = raw;
-                     } else if (raw.startsWith('http')) {
-                       // If points to localhost/127.0.0.1[:port], swap origin with admin base
-                       resolvedImg = raw.replace(/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?/i, base);
-                     } else if (raw.startsWith('/')) {
-                       // Relative-from-root path coming from admin uploads (e.g. /uploads/abc.jpg)
-                       resolvedImg = base + raw;
-                     } else {
-                       // Bare relative path (e.g. uploads/abc.jpg)
-                       resolvedImg = base + '/' + raw;
-                     }
-                   }
-              %>
-            <div class="card-wrapper">
-              <article class="pkg-card">
-                <div class="pkg-image">
-                      <img 
-                        src="<%= resolvedImg %>" 
-                        alt="<%= package.title %>"
-                        data-title="<%= package.title %>"
-                        data-raw="<%= package.imageUrl || '' %>"
-                        data-admin-base="<%= adminBaseUrl %>"
-                        onload="console.log('[slider] image loaded:', this.dataset.title, this.src)"
-                        onerror="(function(img){
+              <% tourPackages.forEach(function(pkg) { var base=(adminBaseUrl || '' ).replace(/\/$/, '' ); var
+                raw=(pkg.imageUrl || '' ).trim(); var resolvedImg='/images/hero-img1.webp' ; if (raw) { if
+                (raw.startsWith('data:')) { resolvedImg=raw; } else if (raw.startsWith('http')) {
+                resolvedImg=raw.replace(/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?/i, base); } else if
+                (raw.startsWith('/')) { resolvedImg=base + raw; } else { resolvedImg=base + '/' + raw; } } %>
+                <div class="card-wrapper">
+                  <article class="pkg-card">
+                    <div class="pkg-image">
+                      <img src="<%= resolvedImg %>" alt="<%= pkg.title %>" data-title="<%= pkg.title %>"
+                        data-raw="<%= pkg.imageUrl || '' %>" data-admin-base="<%= adminBaseUrl %>"
+                        onload="console.log('[slider] image loaded:', this.dataset.title, this.src)" onerror="(function(img){
                           try {
-                            const raw = (img.dataset.raw || '').trim();
-                            const base = (img.dataset.adminBase || '').replace(/\/$/, '');
-                            const attempts = [];
+                            var raw = (img.dataset.raw || '').trim();
+                            var base = (img.dataset.adminBase || '').replace(/\/$/, '');
+                            var attempts = [];
                             // 1) If current src already equals base+raw and failed, try raw as-is (in case it's public on same origin)
                             if (raw) {
                               if (img.src.startsWith(base) && (raw.startsWith('/') || !raw.startsWith('http'))) {
@@ -268,14 +284,14 @@
 
                             console.warn('[slider] image failed:', img.dataset.title, { src: img.src, raw, base, attempts });
                             // sequentially try unique attempts
-                            const tried = new Set();
+                            var tried = new Set();
                             (function tryNext(){
-                              const next = attempts.shift();
+                              var next = attempts.shift();
                               if (!next) return;
                               if (tried.has(next)) return tryNext();
                               tried.add(next);
                               fetch(next, { method: 'HEAD' })
-                                .then(r => {
+                                .then(function(r) {
                                   console.log('[slider] HEAD', r.status, next);
                                   if (r.ok) {
                                     img.onerror = null;
@@ -284,65 +300,70 @@
                                     tryNext();
                                   }
                                 })
-                                .catch(() => tryNext());
+                                .catch(function() { tryNext(); });
                             })();
                           } catch(e) {
                             console.warn('[slider] onerror handler exception:', e.message);
                             img.onerror = null;
                             img.src = '/images/hero-img1.webp';
                           }
-                        })(this)"
-                      >
-                  <div class="wishlist"><i class="bi bi-heart"></i><span>Add to wishlist</span></div>
-                </div>
-                <div class="pkg-body">
-                  <div>
-                        <h3 class="pkg-title"><%= package.title %></h3>
+                        })(this)">
+                      <div class="wishlist"><i class="bi bi-heart"></i><span>Add to wishlist</span></div>
+                    </div>
+                    <div class="pkg-body">
+                      <div>
+                        <h3 class="pkg-title">
+                          <%= pkg.title %>
+                        </h3>
                         <div class="pkg-meta">
-                          <i class="bi bi-geo-alt"></i> 
-                          <%= package.location || 'Pakistan\'s northern regions' %>
-                  </div>
+                          <i class="bi bi-geo-alt"></i>
+                          <%= pkg.location || 'Pakistan\' s northern regions' %>
+                        </div>
                         <div class="pkg-stars">
-                          <% for (let i = 1; i <= 5; i++) { %>
-                            <% if (i <= package.stars) { %>
+                          <% for (var i=1; i <=5; i++) { %>
+                            <% if (i <=pkg.stars) { %>
                               <i class="bi bi-star-fill"></i>
-                            <% } else { %>
-                              <i class="bi bi-star"></i>
-                            <% } %>
-                          <% } %>
-                  </div>
-                  </div>
+                              <% } else { %>
+                                <i class="bi bi-star"></i>
+                                <% } %>
+                                  <% } %>
+                        </div>
+                      </div>
 
-                  <div class="pkg-footer">
-                        <div class="price">$<%= package.price.toLocaleString() %></div>
-                    <button class="btn-explore" onclick="window.location.href='/payment/<%= package._id %>'">Explore</button>
-                  </div>
+                      <div class="pkg-footer">
+                        <div class="price">$<%= pkg.price.toLocaleString() %>
+                        </div>
+                        <button class="btn-explore"
+                          onclick="window.location.href='/payment/<%= pkg._id %>'">Explore</button>
+                      </div>
+                    </div>
+                  </article>
                 </div>
-              </article>
-            </div>
-              <% }); %>
+                <% }); %>
 
-          </div> <!-- /.carousel-track -->
-        </div> <!-- /.carousel-viewport -->
+            </div> <!-- /.carousel-track -->
+          </div> <!-- /.carousel-viewport -->
 
-        <div class="carousel-bottom-fade" aria-hidden="true"></div>
-      </div> <!-- /.multi-carousel -->
+          <div class="carousel-bottom-fade" aria-hidden="true"></div>
+        </div> <!-- /.multi-carousel -->
 
-      <div class="text-center">
-        <button class="explore-more">Explore More</button>
-      </div>
-      <% } else { %>
-        <!-- No Data Placeholder -->
-        <div class="no-data-placeholder" style="text-align: center; padding: 60px 20px; margin: 40px 0;">
-          <div style="background: #f8f9fa; border-radius: 12px; padding: 40px; border: 2px dashed #dee2e6;">
-            <i class="bi bi-inbox" style="font-size: 48px; color: #6c757d; margin-bottom: 20px;"></i>
-            <h3 style="color: var(--accent-navy); font-weight: 600; margin-bottom: 12px;">No Tour Packages Available</h3>
-            <p style="color: var(--muted); margin-bottom: 0; font-size: 15px;">
-              We're currently updating our adventure packages. Please check back soon for exciting new tours and experiences!
-            </p>
-          </div>
+        <div class="text-center">
+          <button class="explore-more">Explore More</button>
         </div>
-      <% } %>
+        <% } else { %>
+          <!-- No Data Placeholder -->
+          <div class="no-data-placeholder" style="text-align: center; padding: 60px 20px; margin: 40px 0;">
+            <div style="background: #f8f9fa; border-radius: 12px; padding: 40px; border: 2px dashed #dee2e6;">
+              <i class="bi bi-inbox" style="font-size: 48px; color: #6c757d; margin-bottom: 20px;"></i>
+              <h3 style="color: var(--accent-navy); font-weight: 600; margin-bottom: 12px;">No Tour Packages Available
+              </h3>
+              <p style="color: var(--muted); margin-bottom: 0; font-size: 15px;">
+                We're currently updating our adventure packages. Please check back soon for exciting new tours and
+                experiences!
+              </p>
+            </div>
+          </div>
+          <% } %>
     </div>
   </section>
 
@@ -356,11 +377,11 @@
 
   <script>
     // Slider debug: log raw and resolved URLs for quick inspection
-    (function(){
+    (function () {
       try {
         var dataEl = document.getElementById('sliderDebugData');
         var sliderData = dataEl ? JSON.parse(dataEl.textContent || '{}') : { base: '', items: [] };
-        const debug = (sliderData.items || []).map(function(it){
+        var debug = (sliderData.items || []).map(function (it) {
           var resolved = '/images/hero-img1.webp';
           var raw = it.raw;
           var base = sliderData.base.replace(/\/$/, '');
@@ -380,7 +401,7 @@
           console.table(debug);
           console.groupEnd();
         }
-      } catch(e) { console.warn('[slider] debug table failed:', e && e.message); }
+      } catch (e) { console.warn('[slider] debug table failed:', e && e.message); }
     })();
 
     /* Responsive multi-item auto carousel
@@ -392,69 +413,69 @@
        - Uses clones for infinite loop
        - Interval taken from data-interval attribute (ms)
     */
-    (function(){
-      const carousel = document.getElementById('multiCarousel');
-      const track = carousel.querySelector('.carousel-track');
-      let interval = parseInt(carousel.dataset.interval) || 4000;
-      let timer = null;
+    (function () {
+      var carousel = document.getElementById('multiCarousel');
+      var track = carousel.querySelector('.carousel-track');
+      var interval = parseInt(carousel.dataset.interval) || 4000;
+      var timer = null;
 
       // breakpoints -> visible count
-      function getVisibleCount(){
-        const w = window.innerWidth;
-        if (w >= 1200) return 4;
-        if (w >= 992) return 3;
+      function getVisibleCount() {
+        var w = window.innerWidth;
+        if (w >= 1200) return 3;
+        if (w >= 992) return 2;
         if (w >= 768) return 2;
         return 1;
       }
 
       // Build carousel: clone nodes and set widths
-      function build(){
+      function build() {
         // clear any existing timer and clones
         clearInterval(timer);
         // remove previous clones if any
         track.style.transition = 'none';
         // move children to array
-        const originals = Array.from(track.querySelectorAll('.card-wrapper')).filter(n => !n.classList.contains('clone'));
+        var originals = Array.from(track.querySelectorAll('.card-wrapper')).filter(function (n) { return !n.classList.contains('clone'); });
         // remove all nodes in track
         track.innerHTML = '';
         // determine visible
-        const visible = getVisibleCount();
+        var visible = getVisibleCount();
 
         // create clones of last 'visible' to front, and first 'visible' to end
-        const total = originals.length;
-        const prefix = originals.slice(Math.max(0, total - visible)).map(n => n.cloneNode(true));
-        const suffix = originals.slice(0, visible).map(n => n.cloneNode(true));
+        var total = originals.length;
+        var prefix = originals.slice(Math.max(0, total - visible)).map(function (n) { return n.cloneNode(true); });
+        var suffix = originals.slice(0, visible).map(function (n) { return n.cloneNode(true); });
 
-        prefix.forEach(n => n.classList.add('clone'));
-        suffix.forEach(n => n.classList.add('clone'));
+        prefix.forEach(function (n) { n.classList.add('clone'); });
+        suffix.forEach(function (n) { n.classList.add('clone'); });
 
         // append in order: prefix, originals, suffix
-        prefix.forEach(n => track.appendChild(n));
-        originals.forEach(n => track.appendChild(n));
-        suffix.forEach(n => track.appendChild(n));
+        prefix.forEach(function (n) { track.appendChild(n); });
+        originals.forEach(function (n) { track.appendChild(n); });
+        suffix.forEach(function (n) { track.appendChild(n); });
 
         // set item widths (each .card-wrapper => (100 / visible)% of viewport minus gap)
-        const gap = 22; // px, same as CSS gap
+        var gap = 22; // px, same as CSS gap
         // We will compute pixel widths because transform uses px.
         // viewport width:
-        const viewportWidth = carousel.querySelector('.carousel-viewport').clientWidth;
+        var viewportWidth = carousel.querySelector('.carousel-viewport').clientWidth;
         // compute available width minus gaps between items
-        const visibleCount = visible;
+        var visibleCount = visible;
         // total gaps between visible items = (visibleCount - 1) * gap
-        const itemWidth = (viewportWidth - (gap * (visibleCount - 1))) / visibleCount;
+        var itemWidth = (viewportWidth - (gap * (visibleCount - 1))) / visibleCount;
 
         // apply widths to all items (including clones)
-        Array.from(track.children).forEach(child => {
+        Array.from(track.children).forEach(function (child) {
           child.style.width = itemWidth + 'px';
         });
 
         // set track transform starting position: move to the first original (prefix length)
-        const startIndex = prefix.length;
+        var startIndex = prefix.length;
         // compute initial translateX
-        const translateX = -startIndex * (itemWidth + gap);
-        track.style.transform = `translateX(${translateX}px)`;
+        var translateX = -startIndex * (itemWidth + gap);
+        track.style.transform = 'translateX(' + translateX + 'px)';
         // small delay before enabling transitions
-        setTimeout(() => { track.style.transition = 'transform 550ms cubic-bezier(.22,.9,.32,1)'; }, 40);
+        setTimeout(function () { track.style.transition = 'transform 550ms cubic-bezier(.22,.9,.32,1)'; }, 40);
 
         // attach transitionend handler for loop reset
         track._itemWidth = itemWidth + gap;
@@ -464,40 +485,40 @@
         track._currentIndex = startIndex;
       }
 
-      function nextSlide(){
+      function nextSlide() {
         // move one item forward
-        const step = track._itemWidth;
+        var step = track._itemWidth;
         track._currentIndex++;
-        track.style.transform = `translateX(${-track._currentIndex * step}px)`;
+        track.style.transform = 'translateX(' + (-track._currentIndex * step) + 'px)';
         // after transition, check if we need to reset
       }
 
       // handle infinite reset
-      function handleTransitionEnd(){
-        const total = track._totalItems;
-        const visible = track._visible;
-        const startIndex = track._startIndex;
+      function handleTransitionEnd() {
+        var total = track._totalItems;
+        var visible = track._visible;
+        var startIndex = track._startIndex;
         // When we've reached suffix clones at end:
-        if (track._currentIndex >= total - visible){
+        if (track._currentIndex >= total - visible) {
           // jump back to startIndex (originals) without animation
           track.style.transition = 'none';
           track._currentIndex = startIndex;
-          track.style.transform = `translateX(${-track._currentIndex * track._itemWidth}px)`;
+          track.style.transform = 'translateX(' + (-track._currentIndex * track._itemWidth) + 'px)';
           // re-enable transition next tick
-          setTimeout(()=> { track.style.transition = 'transform 550ms cubic-bezier(.22,.9,.32,1)'; }, 40);
+          setTimeout(function () { track.style.transition = 'transform 550ms cubic-bezier(.22,.9,.32,1)'; }, 40);
         }
       }
 
       // Start autoplay
-      function startAuto(){
+      function startAuto() {
         clearInterval(timer);
-        timer = setInterval(() => {
+        timer = setInterval(function () {
           nextSlide();
         }, interval);
       }
 
       // stop autoplay
-      function stopAuto(){
+      function stopAuto() {
         clearInterval(timer);
         timer = null;
       }
@@ -507,10 +528,10 @@
       startAuto();
 
       // events
-      window.addEventListener('resize', () => {
+      window.addEventListener('resize', function () {
         // rebuild on resize (debounce)
         if (this._resizeTimeout) clearTimeout(this._resizeTimeout);
-        this._resizeTimeout = setTimeout(() => {
+        this._resizeTimeout = setTimeout(function () {
           build();
           startAuto();
         }, 120);
@@ -524,8 +545,9 @@
       carousel.addEventListener('mouseleave', startAuto);
 
       // expose a small API in case you want to programmatically change interval
-      carousel.$rebuild = () => { build(); startAuto(); };
+      carousel.$rebuild = function () { build(); startAuto(); };
     })();
   </script>
 </body>
+
 </html>

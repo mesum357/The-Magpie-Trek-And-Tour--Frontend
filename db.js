@@ -3,18 +3,18 @@ const passportLocalMongoose = require('passport-local-mongoose');
 
 // User Schema
 const userSchema = new mongoose.Schema({
-    username: { 
-        type: String, 
-        trim: true, 
+    username: {
+        type: String,
+        trim: true,
         required: true,
-        unique: true 
+        unique: true
     },
-    email: { 
-        type: String, 
-        trim: true, 
-        index: true, 
-        unique: true, 
-        required: true 
+    email: {
+        type: String,
+        trim: true,
+        index: true,
+        unique: true,
+        required: true
     },
     fullName: {
         type: String,
@@ -45,7 +45,8 @@ const orderSchema = new mongoose.Schema({
         default: 'pending'
     }
 }, { timestamps: true });
-const gallerySchema = new mongoose.Schema({
+// Recent Trip Schema
+const recentTripSchema = new mongoose.Schema({
     title: {
         type: String,
         required: true,
@@ -53,43 +54,17 @@ const gallerySchema = new mongoose.Schema({
     },
     description: {
         type: String,
+        required: true,
         trim: true
     },
     imageUrl: {
         type: String,
-        default: ''
-    },
-    gallery: [{
-        url: {
-            type: String,
         required: true
     },
-        caption: {
-            type: String,
-            default: ''
-        },
-        alt: {
-            type: String,
-            default: ''
-        }
-    }],
-    tags: [{
-        type: String,
-        trim: true
-    }],
-    category: {
-        type: String,
-        enum: ['tours', 'events', 'featured', 'general'],
-        default: 'general'
-    },
-    featured: {
-        type: Boolean,
-        default: false
-    },
-    uploadedBy: {
+    createdBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
-        required: true
+        required: false
     },
     createdAt: {
         type: Date,
@@ -102,7 +77,7 @@ const gallerySchema = new mongoose.Schema({
 });
 
 // Update timestamps on save
-gallerySchema.pre('save', function(next) {
+recentTripSchema.pre('save', function (next) {
     this.updatedAt = Date.now();
     next();
 });
@@ -303,14 +278,14 @@ const hikingSchema = new mongoose.Schema({
 });
 
 // Update timestamps on save
-hikingSchema.pre('save', function(next) {
+hikingSchema.pre('save', function (next) {
     this.updatedAt = Date.now();
     next();
 });
 
 const User = mongoose.models.User || mongoose.model('User', userSchema);
 const Order = mongoose.models.Order || mongoose.model('Order', orderSchema);
-const Gallery = mongoose.models.Gallery || mongoose.model('Gallery', gallerySchema);
+const RecentTrip = mongoose.models.RecentTrip || mongoose.model('RecentTrip', recentTripSchema);
 const TourPackage = mongoose.models.TourPackage || mongoose.model('TourPackage', tourPackageSchema);
 const Hiking = mongoose.models.Hiking || mongoose.model('Hiking', hikingSchema);
 
@@ -382,7 +357,7 @@ const reviewSchema = new mongoose.Schema({
     }
 });
 
-reviewSchema.pre('save', function(next) {
+reviewSchema.pre('save', function (next) {
     this.updatedAt = Date.now();
     next();
 });
@@ -508,13 +483,13 @@ const bookingSchema = new mongoose.Schema({
     }
 });
 
-bookingSchema.pre('save', function(next) {
+bookingSchema.pre('save', function (next) {
     this.updatedAt = Date.now();
     next();
 });
 
 // Generate unique booking number
-bookingSchema.pre('save', function(next) {
+bookingSchema.pre('save', function (next) {
     if (this.isNew && !this.bookingNumber) {
         const timestamp = Date.now().toString().slice(-6);
         const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
@@ -545,13 +520,13 @@ const paymentRequestSchema = new mongoose.Schema({
     updatedAt: { type: Date, default: Date.now }
 });
 
-paymentRequestSchema.pre('save', function(next){
+paymentRequestSchema.pre('save', function (next) {
     this.updatedAt = Date.now();
     next();
 });
 
 const PaymentRequest = mongoose.models.PaymentRequest || mongoose.model('PaymentRequest', paymentRequestSchema);
 
-module.exports = { User, Order, Gallery, TourPackage, Hiking, Review, Booking, PaymentRequest };
+module.exports = { User, Order, RecentTrip, TourPackage, Hiking, Review, Booking, PaymentRequest };
 
 

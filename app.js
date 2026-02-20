@@ -15,7 +15,7 @@ const fs = require('fs');
 
 
 // Import Mongoose models from db.js
-const { User, Gallery, TourPackage, Hiking, Review, Booking, PaymentRequest } = require('./db');
+const { User, Gallery, TourPackage, Hiking, RecentTrip, Review, Booking, PaymentRequest } = require('./db');
 
 // Stripe removed - manual payments only
 
@@ -35,7 +35,7 @@ const storage = multer.diskStorage({
     }
 });
 
-const upload = multer({ 
+const upload = multer({
     storage: storage,
     limits: {
         fileSize: 10 * 1024 * 1024 // 10MB limit per file
@@ -54,12 +54,12 @@ function ensureAuthenticated(req, res, next) {
     if (req.isAuthenticated()) {
         return next();
     }
-    
+
     // If it's an API request, return JSON error
     if (req.path.startsWith('/api/')) {
         return res.status(401).json({ error: 'Authentication required' });
     }
-    
+
     // For page requests, redirect to login with a message
     req.flash('error', 'Please log in to access the payment page');
     res.redirect('/login');
@@ -75,7 +75,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/uploads', express.static(path.join(__dirname, '..', 'Tourist Website Admin panel', 'public', 'uploads')));
 
 // Expose admin panel base URL for uploaded assets to all views
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
     // Resolve admin panel base URL for assets (uploads)
     // Priority: ENV override → request-aware default (prod domain unless localhost)
     const isLocalReq = /^(localhost|127\.0\.0\.1)$/i.test(req.hostname || '');
@@ -135,26 +135,36 @@ if (process.env.NODE_ENV === 'production') {
     mongooseOptions.tlsAllowInvalidHostnames = true;
 }
 
-// Get MongoDB URI from environment or fall back to local
-const mongoURI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/tourist_website';
+// Get MongoDB URI from environment
+const mongoURI = process.env.MONGODB_URI;
+console.log('MongoDB URI presence:', !!mongoURI);
+if (mongoURI) {
+    const masked = mongoURI.replace(/:([^@]+)@/, ':****@');
+    console.log('Connecting to:', masked);
+}
 
-mongoose.connect(mongoURI, mongooseOptions)
+mongoose.connect(mongoURI || 'mongodb://127.0.0.1:27017/tourist_website', {
+    serverSelectionTimeoutMS: 5000,
+    connectTimeoutMS: 10000
+})
     .then(() => {
-        console.log("Connected to MongoDB ");
+        console.log("Connected to MongoDB database:", mongoose.connection.name);
     })
     .catch((err) => {
         console.error("Error connecting to MongoDB Atlas:", err);
-        process.exit(1);
     });
+
+
+
 
 // Passport configuration
 passport.use(User.createStrategy());
 
-passport.serializeUser(function(user, done) {
+passport.serializeUser(function (user, done) {
     done(null, user.id);
 });
 
-passport.deserializeUser(async function(id, done) {
+passport.deserializeUser(async function (id, done) {
     try {
         const user = await User.findById(id);
         done(null, user);
@@ -170,52 +180,43 @@ passport.deserializeUser(async function(id, done) {
 // Routes
 
 // Homepage route - accessible to everyone
-app.get('/', async function(req, res) {
+app.get('/', async function (req, res) {
     try {
         // Fetch tour packages for the slider (limit to 6 for performance)
         const tourPackages = await TourPackage.find({ active: true })
             .sort({ featured: -1, createdAt: -1 })
             .limit(6);
-        try {
-            // Debug: log adminBaseUrl and how image URLs will resolve
-            const base = res.locals.adminBaseUrl;
-            const preview = Array.isArray(tourPackages) ? tourPackages.map(t => ({
-                id: t?._id,
-                title: t?.title,
-                rawImageUrl: t?.imageUrl,
-                resolved: t?.imageUrl
-                    ? (t.imageUrl.startsWith('http')
-                        ? t.imageUrl
-                        : base + (t.imageUrl.startsWith('/') ? '' : '/') + t.imageUrl)
-                    : '(fallback to /images/hero-img1.webp)'
-            })) : [];
-            console.log('[home] adminBaseUrl:', base);
-            console.log('[home] tourPackages found:', tourPackages.length);
-            console.table(preview);
-        } catch (dbgErr) {
-            console.warn('[home] preview logging failed:', dbgErr?.message);
-        }
-            
-        res.render('index', { 
+
+        // Fetch recent trips
+        const recentTrips = await RecentTrip.find()
+            .sort({ createdAt: -1 })
+            .limit(4);
+
+        res.render('index', {
+
+
+
             user: req.user,
             isAuthenticated: req.isAuthenticated(),
             tourPackages: tourPackages,
+            recentTrips: recentTrips,
             currentPage: 'home'
         });
     } catch (error) {
-        console.error('Error fetching tour packages:', error);
-        res.render('index', { 
+        console.error('Error fetching tour packages/recent trips:', error);
+        res.render('index', {
             user: req.user,
             isAuthenticated: req.isAuthenticated(),
             tourPackages: [],
+            recentTrips: [],
             currentPage: 'home'
         });
     }
 });
 
 // Debug dropdown route
-app.get('/debug-dropdown', function(req, res) {
-    res.render('debug-dropdown', { 
+app.get('/debug-dropdown', function (req, res) {
+    res.render('debug-dropdown', {
         user: req.user,
         isAuthenticated: req.isAuthenticated(),
         currentPage: 'debug'
@@ -223,11 +224,11 @@ app.get('/debug-dropdown', function(req, res) {
 });
 
 // Login page route
-app.get('/login', function(req, res) {
+app.get('/login', function (req, res) {
     if (req.isAuthenticated()) {
         return res.redirect('/');
     }
-    res.render('login', { 
+    res.render('login', {
         user: req.user,
         isAuthenticated: req.isAuthenticated(),
         error: req.query.error,
@@ -237,11 +238,11 @@ app.get('/login', function(req, res) {
 });
 
 // Register page route
-app.get('/register', function(req, res) {
+app.get('/register', function (req, res) {
     if (req.isAuthenticated()) {
         return res.redirect('/');
     }
-    res.render('register', { 
+    res.render('register', {
         user: req.user,
         isAuthenticated: req.isAuthenticated(),
         error: req.query.error,
@@ -250,9 +251,9 @@ app.get('/register', function(req, res) {
     });
 });
 
-app.post("/register", function(req, res) {
+app.post("/register", function (req, res) {
     const { username, email, password, confirmPassword, fullName } = req.body;
-    
+
     // Validation
     if (!username || !email || !password || !confirmPassword || !fullName) {
         return res.redirect('/register?error=All fields are required');
@@ -263,12 +264,12 @@ app.post("/register", function(req, res) {
     if (password.length < 6) {
         return res.redirect('/register?error=Password must be at least 6 characters long');
     }
-    
-    User.register({ 
-        username: username, 
-        email: email, 
-        fullName: fullName 
-    }, password, function(err, user) {
+
+    User.register({
+        username: username,
+        email: email,
+        fullName: fullName
+    }, password, function (err, user) {
         if (err) {
             console.error(err);
             let errorMessage = 'Registration failed';
@@ -277,7 +278,7 @@ app.post("/register", function(req, res) {
             }
             return res.redirect(`/register?error=${encodeURIComponent(errorMessage)}`);
         }
-        req.login(user, function(err) {
+        req.login(user, function (err) {
             if (err) {
                 console.error(err);
                 return res.redirect('/register?error=Login failed after registration');
@@ -287,18 +288,18 @@ app.post("/register", function(req, res) {
     });
 });
 
-app.post("/login", function(req, res, next) {
+app.post("/login", function (req, res, next) {
     // Map email field to username for passport authentication
     req.body.username = req.body.email;
-    
-    passport.authenticate("local", function(err, user, info) {
+
+    passport.authenticate("local", function (err, user, info) {
         if (err) {
             return next(err);
         }
         if (!user) {
             return res.redirect('/login?error=Invalid email or password');
         }
-        req.logIn(user, function(err) {
+        req.logIn(user, function (err) {
             if (err) {
                 return next(err);
             }
@@ -308,88 +309,67 @@ app.post("/login", function(req, res, next) {
 });
 
 
-app.get('/logout', function(req, res, next) {
-    req.logout(function(err) {
+app.get('/logout', function (req, res, next) {
+    req.logout(function (err) {
         if (err) { return next(err); }
         res.redirect('/');
     });
 });
 
 // Public routes - accessible to everyone
-app.get("/about", function(req, res) {
-    res.render("about", { 
+app.get("/about", function (req, res) {
+    res.render("about", {
         user: req.user,
         isAuthenticated: req.isAuthenticated(),
         currentPage: 'about'
     });
 });
 
-app.get("/contact", function(req, res) {
-    res.render("contact", { 
+app.get("/contact", function (req, res) {
+    res.render("contact", {
         user: req.user,
         isAuthenticated: req.isAuthenticated(),
         currentPage: 'contact'
     });
 });
 
-app.get("/gallery", async function(req, res) {
-    try {
-        // Fetch gallery images from database
-        const galleryImages = await Gallery.find()
-            .sort({ featured: -1, createdAt: -1 });
-            
-        res.render("gallery", { 
-            user: req.user,
-            isAuthenticated: req.isAuthenticated(),
-            galleryImages: galleryImages,
-            currentPage: 'gallery'
-        });
-    } catch (error) {
-        console.error('Error fetching gallery images:', error);
-        res.render("gallery", { 
-            user: req.user,
-            isAuthenticated: req.isAuthenticated(),
-            galleryImages: [],
-            currentPage: 'gallery'
-        });
-    }
-});
 
-app.get("/faq", function(req, res) {
-    res.render("faq", { 
+
+app.get("/faq", function (req, res) {
+    res.render("faq", {
         user: req.user,
         isAuthenticated: req.isAuthenticated(),
         currentPage: 'faq'
     });
 });
 
-app.get("/hiking", async function(req, res) {
+app.get("/hiking", async function (req, res) {
     try {
         // Get search parameters from query string
         const { location, activity, startDate, guests } = req.query;
-        
+
         // Build search filter
         let filter = { active: true };
-        
+
         // Add location filter if provided
         if (location && location.trim() !== '') {
             filter.location = { $regex: location, $options: 'i' };
         }
-        
+
         // Add activity filter if provided
         if (activity && activity.trim() !== '') {
             filter.activity = activity;
         }
-        
+
         console.log('Search filter:', filter);
-        
+
         // Fetch hiking trails from database with search filter
         const hikingTrails = await Hiking.find(filter)
             .sort({ featured: -1, createdAt: -1 });
-            
+
         console.log(`Found ${hikingTrails.length} hiking trails matching search criteria`);
-            
-        res.render("hiking", { 
+
+        res.render("hiking", {
             user: req.user,
             isAuthenticated: req.isAuthenticated(),
             hikingTrails: hikingTrails,
@@ -403,7 +383,7 @@ app.get("/hiking", async function(req, res) {
         });
     } catch (error) {
         console.error('Error fetching hiking trails:', error);
-        res.render("hiking", { 
+        res.render("hiking", {
             user: req.user,
             isAuthenticated: req.isAuthenticated(),
             hikingTrails: [],
@@ -418,8 +398,8 @@ app.get("/hiking", async function(req, res) {
     }
 });
 
-app.get("/debug", function(req, res) {
-    res.render("debug", { 
+app.get("/debug", function (req, res) {
+    res.render("debug", {
         user: req.user,
         isAuthenticated: req.isAuthenticated(),
         currentPage: 'debug'
@@ -427,7 +407,7 @@ app.get("/debug", function(req, res) {
 });
 
 // Payment page route
-app.get('/payment/:id', ensureAuthenticated, async function(req, res) {
+app.get('/payment/:id', ensureAuthenticated, async function (req, res) {
     try {
         // Validate ObjectId
         if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
@@ -477,8 +457,8 @@ app.get('/payment/:id', ensureAuthenticated, async function(req, res) {
                     { featured: true }
                 ]
             })
-            .sort({ featured: -1, createdAt: -1 })
-            .limit(4);
+                .sort({ featured: -1, createdAt: -1 })
+                .limit(4);
 
             const relatedPackages = relatedHiking.map(h => ({
                 _id: h._id,
@@ -506,7 +486,7 @@ app.get('/payment/:id', ensureAuthenticated, async function(req, res) {
         }
 
         // Get reviews for this tour package
-        const reviews = await Review.find({ $or: [ { tourPackageId: req.params.id }, { hikingId: req.params.id } ] })
+        const reviews = await Review.find({ $or: [{ tourPackageId: req.params.id }, { hikingId: req.params.id }] })
             .sort({ createdAt: -1 })
             .limit(10);
 
@@ -514,7 +494,7 @@ app.get('/payment/:id', ensureAuthenticated, async function(req, res) {
         console.log('[payment] package', req.params.id, 'gallery items:', Array.isArray(tourPackage.gallery) ? tourPackage.gallery.length : 0, 'imageUrl:', tourPackage.imageUrl);
 
         // Get related tour packages (same location or similar)
-        const relatedPackages = await TourPackage.find({ 
+        const relatedPackages = await TourPackage.find({
             _id: { $ne: req.params.id },
             active: true,
             $or: [
@@ -522,8 +502,8 @@ app.get('/payment/:id', ensureAuthenticated, async function(req, res) {
                 { featured: true }
             ]
         })
-        .sort({ featured: -1, createdAt: -1 })
-        .limit(4);
+            .sort({ featured: -1, createdAt: -1 })
+            .limit(4);
 
         res.render('payment', {
             user: req.user,
@@ -535,7 +515,7 @@ app.get('/payment/:id', ensureAuthenticated, async function(req, res) {
         });
     } catch (error) {
         console.error('Error fetching tour package:', error);
-        res.status(500).render('error', { 
+        res.status(500).render('error', {
             message: 'Error loading tour package',
             user: req.user,
             isAuthenticated: req.isAuthenticated()
@@ -543,24 +523,24 @@ app.get('/payment/:id', ensureAuthenticated, async function(req, res) {
     }
 });
 // Manual payment submission (no Stripe)
-app.post('/api/manual-payment', ensureAuthenticated, upload.single('paymentScreenshot'), async function(req, res) {
+app.post('/api/manual-payment', ensureAuthenticated, upload.single('paymentScreenshot'), async function (req, res) {
     try {
-        const { 
-            tourPackageId, 
-            hikingId, 
-            amount, 
-            currency = 'USD', 
-            paymentMethod = 'bank_transfer', 
-            transactionId, 
+        const {
+            tourPackageId,
+            hikingId,
+            amount,
+            currency = 'USD',
+            paymentMethod = 'bank_transfer',
+            transactionId,
             notes,
             customerInfo,
             travelInfo
         } = req.body;
-        
+
         if (!amount) {
             return res.status(400).json({ error: 'Amount is required' });
         }
-        
+
         // Handle uploaded payment screenshot
         let proofImageUrl = '';
         if (req.file) {
@@ -573,19 +553,19 @@ app.post('/api/manual-payment', ensureAuthenticated, upload.single('paymentScree
         } else {
             console.log('No payment screenshot uploaded');
         }
-        
+
         // Create booking first with pending status
         let booking = null;
         if (customerInfo && travelInfo) {
             // Parse customer info and travel info if they're strings
             const parsedCustomerInfo = typeof customerInfo === 'string' ? JSON.parse(customerInfo) : customerInfo;
             const parsedTravelInfo = typeof travelInfo === 'string' ? JSON.parse(travelInfo) : travelInfo;
-            
+
             // Generate booking number
             const timestamp = Date.now().toString().slice(-6);
             const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
             const bookingNumber = `MTT${timestamp}${random}`;
-            
+
             booking = new Booking({
                 userId: req.user._id,
                 tourPackageId: tourPackageId || undefined,
@@ -606,10 +586,10 @@ app.post('/api/manual-payment', ensureAuthenticated, upload.single('paymentScree
                 },
                 bookingStatus: 'pending' // Set to pending until payment is approved
             });
-            
+
             await booking.save();
         }
-        
+
         // Create payment request linked to booking
         const request = new PaymentRequest({
             userId: req.user ? req.user._id : undefined,
@@ -625,14 +605,14 @@ app.post('/api/manual-payment', ensureAuthenticated, upload.single('paymentScree
             proofImageUrl: proofImageUrl,
             notes: notes || ''
         });
-        
+
         console.log('Creating payment request with proofImageUrl:', proofImageUrl);
         await request.save();
         console.log('Payment request saved with ID:', request._id, 'proofImageUrl:', request.proofImageUrl);
         console.log('Database connection:', mongoose.connection.name, 'Host:', mongoose.connection.host, 'Port:', mongoose.connection.port);
-        
-        return res.json({ 
-            success: true, 
+
+        return res.json({
+            success: true,
             requestId: request._id,
             bookingId: booking ? booking._id : null
         });
@@ -644,7 +624,7 @@ app.post('/api/manual-payment', ensureAuthenticated, upload.single('paymentScree
 
 // API Routes
 // Contact form - public endpoint to send email via SMTP
-app.post('/api/contact', async function(req, res) {
+app.post('/api/contact', async function (req, res) {
     try {
         const { name, email, subject, message } = req.body;
 
@@ -701,7 +681,7 @@ app.post('/api/contact', async function(req, res) {
 });
 
 // Debug: inspect detected email configuration
-app.get('/api/email-config', function(req, res) {
+app.get('/api/email-config', function (req, res) {
     const gmailUser = process.env.EMAIL_USER || process.env.GMAIL_USER || process.env.EMAIL;
     const gmailPass = process.env.EMAIL_PASS || process.env.GMAIL_PASS || process.env.APP_PASSWORD;
     const useGmail = Boolean(gmailUser && gmailPass);
@@ -718,7 +698,7 @@ app.get('/api/email-config', function(req, res) {
         toAddressPresent: Boolean(toAddress)
     });
 });
-app.get('/api/hiking', async function(req, res) {
+app.get('/api/hiking', async function (req, res) {
     try {
         const hikingTrails = await Hiking.find({ active: true })
             .sort({ featured: -1, createdAt: -1 });
@@ -730,7 +710,7 @@ app.get('/api/hiking', async function(req, res) {
 });
 
 // Profile page with bookings
-app.get('/profile', ensureAuthenticated, async function(req, res) {
+app.get('/profile', ensureAuthenticated, async function (req, res) {
     try {
         // Fetch user's bookings with proper population
         const bookings = await Booking.find({ userId: req.user._id })
@@ -739,20 +719,20 @@ app.get('/profile', ensureAuthenticated, async function(req, res) {
                 select: 'title location imageUrl price'
             })
             .populate({
-                path: 'hikingId', 
+                path: 'hikingId',
                 select: 'title location imageUrl price'
             })
             .sort({ createdAt: -1 });
 
-        res.render('profile', { 
-            user: req.user, 
+        res.render('profile', {
+            user: req.user,
             isAuthenticated: req.isAuthenticated(),
             bookings: bookings,
             currentPage: 'profile'
         });
     } catch (error) {
         console.error('Error fetching user profile:', error);
-        res.status(500).render('error', { 
+        res.status(500).render('error', {
             message: 'Error loading profile',
             user: req.user,
             isAuthenticated: req.isAuthenticated()
@@ -761,7 +741,7 @@ app.get('/profile', ensureAuthenticated, async function(req, res) {
 });
 
 // Bookings page - dedicated page for viewing booking history
-app.get('/bookings', ensureAuthenticated, async function(req, res) {
+app.get('/bookings', ensureAuthenticated, async function (req, res) {
     try {
         // Fetch user's bookings with proper population
         const bookings = await Booking.find({ userId: req.user._id })
@@ -770,7 +750,7 @@ app.get('/bookings', ensureAuthenticated, async function(req, res) {
                 select: 'title location imageUrl price'
             })
             .populate({
-                path: 'hikingId', 
+                path: 'hikingId',
                 select: 'title location imageUrl price'
             })
             .sort({ createdAt: -1 });
@@ -786,15 +766,15 @@ app.get('/bookings', ensureAuthenticated, async function(req, res) {
             });
         });
 
-        res.render('bookings', { 
-            user: req.user, 
+        res.render('bookings', {
+            user: req.user,
             isAuthenticated: req.isAuthenticated(),
             bookings: bookings,
             currentPage: 'bookings'
         });
     } catch (error) {
         console.error('Error fetching user bookings:', error);
-        res.status(500).render('error', { 
+        res.status(500).render('error', {
             message: 'Error loading bookings',
             user: req.user,
             isAuthenticated: req.isAuthenticated()
@@ -803,7 +783,7 @@ app.get('/bookings', ensureAuthenticated, async function(req, res) {
 });
 
 // Download booking as PDF
-app.get('/bookings/:id/download', ensureAuthenticated, async function(req, res) {
+app.get('/bookings/:id/download', ensureAuthenticated, async function (req, res) {
     try {
         const booking = await Booking.findById(req.params.id)
             .populate('tourPackageId')
@@ -957,10 +937,10 @@ app.get('/bookings/:id/download', ensureAuthenticated, async function(req, res) 
 });
 
 // Review API endpoints
-app.post('/api/reviews', ensureAuthenticated, async function(req, res) {
+app.post('/api/reviews', ensureAuthenticated, async function (req, res) {
     try {
         const { tourPackageId, hikingId, userName, userEmail, rating, title, comment } = req.body;
-        
+
         // Determine target id (package or hiking)
         const targetId = tourPackageId || hikingId;
         if (!targetId || !userEmail || !rating) {
@@ -1028,10 +1008,10 @@ app.post('/api/reviews', ensureAuthenticated, async function(req, res) {
     }
 });
 
-app.get('/api/reviews/:tourPackageId', async function(req, res) {
+app.get('/api/reviews/:tourPackageId', async function (req, res) {
     try {
         const id = req.params.tourPackageId;
-        const reviews = await Review.find({ $or: [ { tourPackageId: id }, { hikingId: id } ] })
+        const reviews = await Review.find({ $or: [{ tourPackageId: id }, { hikingId: id }] })
             .sort({ createdAt: -1 });
         res.json(reviews);
     } catch (error) {
@@ -1044,10 +1024,10 @@ app.get('/api/reviews/:tourPackageId', async function(req, res) {
 // Removed Stripe route: /api/create-payment-intent
 
 // Booking API endpoints
-app.post('/api/bookings', ensureAuthenticated, async function(req, res) {
+app.post('/api/bookings', ensureAuthenticated, async function (req, res) {
     try {
         console.log('Booking request received:', req.body);
-        
+
         const {
             tourPackageId,
             hikingId,
@@ -1092,7 +1072,7 @@ app.post('/api/bookings', ensureAuthenticated, async function(req, res) {
         // Validate dates
         const departureDate = new Date(travelInfo.departureDate);
         const returnDate = new Date(travelInfo.returnDate);
-        
+
         if (isNaN(departureDate.getTime()) || isNaN(returnDate.getTime())) {
             console.log('Invalid dates:', { departureDate: travelInfo.departureDate, returnDate: travelInfo.returnDate });
             return res.status(400).json({ error: 'Invalid date format' });
@@ -1147,7 +1127,7 @@ app.post('/api/bookings', ensureAuthenticated, async function(req, res) {
         console.log('Booking object created, saving...');
         await booking.save();
         console.log('Booking saved successfully:', booking._id);
-        
+
         // Populate tour package details
         await booking.populate('tourPackageId');
         await booking.populate('hikingId');
@@ -1161,14 +1141,14 @@ app.post('/api/bookings', ensureAuthenticated, async function(req, res) {
     }
 });
 
-app.get('/api/bookings', async function(req, res) {
+app.get('/api/bookings', async function (req, res) {
     try {
         if (!req.user) {
             return res.status(401).json({ error: 'Authentication required' });
         }
 
         let query = { userId: req.user._id };
-        
+
         // If 'since' parameter is provided, filter by updatedAt
         if (req.query.since) {
             query.updatedAt = { $gte: new Date(req.query.since) };
@@ -1185,7 +1165,7 @@ app.get('/api/bookings', async function(req, res) {
     }
 });
 
-app.get('/api/bookings/:id', async function(req, res) {
+app.get('/api/bookings/:id', async function (req, res) {
     try {
         const booking = await Booking.findById(req.params.id)
             .populate('tourPackageId')
@@ -1208,15 +1188,15 @@ app.get('/api/bookings/:id', async function(req, res) {
 });
 
 // Get user's payment requests
-app.get('/api/payment-requests', ensureAuthenticated, async function(req, res) {
+app.get('/api/payment-requests', ensureAuthenticated, async function (req, res) {
     try {
         let query = { userId: req.user._id };
-        
+
         // If 'since' parameter is provided, filter by updatedAt
         if (req.query.since) {
             query.updatedAt = { $gte: new Date(req.query.since) };
         }
-        
+
         const paymentRequests = await PaymentRequest.find(query)
             .sort({ createdAt: -1 });
         res.json(paymentRequests);
@@ -1227,7 +1207,7 @@ app.get('/api/payment-requests', ensureAuthenticated, async function(req, res) {
 });
 
 // Payment Settings Schema (shared with admin panel)
-        const paymentSettingSchema = new mongoose.Schema({
+const paymentSettingSchema = new mongoose.Schema({
     qrImageUrl: { type: String, default: '' },
     bankName: { type: String, default: '' },
     accountName: { type: String, default: '' },
@@ -1236,12 +1216,12 @@ app.get('/api/payment-requests', ensureAuthenticated, async function(req, res) {
     swift: { type: String, default: '' },
     instructions: { type: String, default: '' },
     updatedAt: { type: Date, default: Date.now }
-        }, { timestamps: true });
-        
-        const PaymentSetting = mongoose.models.PaymentSetting || mongoose.model('PaymentSetting', paymentSettingSchema);
-        
+}, { timestamps: true });
+
+const PaymentSetting = mongoose.models.PaymentSetting || mongoose.model('PaymentSetting', paymentSettingSchema);
+
 // Get payment settings from shared database
-app.get('/api/payment-settings', async function(req, res) {
+app.get('/api/payment-settings', async function (req, res) {
     try {
         const settings = await PaymentSetting.findOne();
         res.json(settings || {});
@@ -1252,16 +1232,16 @@ app.get('/api/payment-settings', async function(req, res) {
 });
 
 // Test endpoint to check image accessibility
-app.get('/api/test-image/:filename', function(req, res) {
+app.get('/api/test-image/:filename', function (req, res) {
     const filename = req.params.filename;
     const imagePath = path.join(__dirname, '..', 'Tourist Website Admin panel', 'public', 'uploads', filename);
-    
+
     console.log('Testing image access from website:', {
         filename: filename,
         imagePath: imagePath,
         exists: require('fs').existsSync(imagePath)
     });
-    
+
     if (require('fs').existsSync(imagePath)) {
         res.sendFile(imagePath);
     } else {
@@ -1271,9 +1251,9 @@ app.get('/api/test-image/:filename', function(req, res) {
 
 
 // Simple test route to check if server is responding
-app.get('/api/test', function(req, res) {
-    res.json({ 
-        status: 'Server is running', 
+app.get('/api/test', function (req, res) {
+    res.json({
+        status: 'Server is running',
         timestamp: new Date().toISOString(),
         domain: req.get('host'),
         protocol: req.get('x-forwarded-proto') || req.protocol
@@ -1281,15 +1261,15 @@ app.get('/api/test', function(req, res) {
 });
 
 // Test endpoint to check payment requests in database
-app.get('/api/test-payment-requests', async function(req, res) {
+app.get('/api/test-payment-requests', async function (req, res) {
     try {
         const totalRequests = await PaymentRequest.countDocuments();
         const pendingRequests = await PaymentRequest.countDocuments({ status: 'pending' });
         const approvedRequests = await PaymentRequest.countDocuments({ status: 'approved' });
         const rejectedRequests = await PaymentRequest.countDocuments({ status: 'rejected' });
-        
+
         const recentRequests = await PaymentRequest.find().sort({ createdAt: -1 }).limit(5).select('_id userEmail userName amount status createdAt');
-        
+
         res.json({
             database: {
                 name: mongoose.connection.name,
@@ -1312,15 +1292,15 @@ app.get('/api/test-payment-requests', async function(req, res) {
 });
 
 // Test endpoint to verify booking schema
-app.get('/api/test-booking', async function(req, res) {
+app.get('/api/test-booking', async function (req, res) {
     try {
         console.log('Testing booking schema...');
-        
+
         // Generate test booking number
         const timestamp = Date.now().toString().slice(-6);
         const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
         const testBookingNumber = `MTT${timestamp}${random}`;
-        
+
         const testBooking = new Booking({
             userId: null,
             tourPackageId: '507f1f77bcf86cd799439011', // Test ObjectId
@@ -1347,7 +1327,7 @@ app.get('/api/test-booking', async function(req, res) {
             },
             bookingStatus: 'confirmed'
         });
-        
+
         console.log('Test booking object created successfully');
         res.json({ success: true, message: 'Booking schema is working' });
     } catch (error) {
@@ -1357,13 +1337,13 @@ app.get('/api/test-booking', async function(req, res) {
 });
 
 // Test endpoint to check tour packages and their images
-app.get('/api/test-tours', async function(req, res) {
+app.get('/api/test-tours', async function (req, res) {
     try {
         console.log('Testing tour packages...');
-        
+
         const tourPackages = await TourPackage.find({ active: true }).limit(5);
         console.log('Found tour packages:', tourPackages.length);
-        
+
         const toursWithImageInfo = tourPackages.map(tour => ({
             id: tour._id,
             title: tour.title,
@@ -1375,9 +1355,9 @@ app.get('/api/test-tours', async function(req, res) {
                 ? (tour.gallery[0].url.startsWith('http') ? 'full_url' : (tour.gallery[0].url.startsWith('data:') ? 'data_url' : 'relative_path'))
                 : 'none'
         }));
-        
-        res.json({ 
-            success: true, 
+
+        res.json({
+            success: true,
             count: tourPackages.length,
             tours: toursWithImageInfo
         });
@@ -1388,7 +1368,7 @@ app.get('/api/test-tours', async function(req, res) {
 });
 
 // Debug endpoint: get a single tour package minimal info
-app.get('/api/test-package/:id', async function(req, res) {
+app.get('/api/test-package/:id', async function (req, res) {
     try {
         const tour = await TourPackage.findById(req.params.id);
         if (!tour) {
@@ -1407,7 +1387,7 @@ app.get('/api/test-package/:id', async function(req, res) {
 });
 
 // Debug endpoint: resolve a raw image URL the same way the views do
-app.get('/api/debug/resolve-image', function(req, res) {
+app.get('/api/debug/resolve-image', function (req, res) {
     try {
         const raw = (req.query.raw || '').trim();
         const base = (res.locals.adminBaseUrl || '').replace(/\/$/, '');
@@ -1430,7 +1410,7 @@ app.get('/api/debug/resolve-image', function(req, res) {
     }
 });
 
-app.listen(3000, function() {
+app.listen(3000, function () {
     console.log("Server is running on port 3000");
     // Auto-open the index page on server start
     const url = 'http://localhost:3000/';

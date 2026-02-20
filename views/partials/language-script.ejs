@@ -8,29 +8,29 @@
     z-index: 10000;
     animation: slideInLeft 0.3s ease-out;
   }
-  
+
   .lang-popup-card {
     background: #28a745;
     color: white;
     padding: 15px 20px;
     border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     min-width: 250px;
     position: relative;
   }
-  
+
   .lang-popup-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 8px;
   }
-  
+
   .lang-popup-title {
     font-weight: 600;
     font-size: 14px;
   }
-  
+
   .lang-popup-close {
     background: none;
     border: none;
@@ -44,38 +44,40 @@
     align-items: center;
     justify-content: center;
   }
-  
+
   .lang-popup-body {
     font-size: 13px;
     opacity: 0.9;
   }
-  
+
   .lang-popup-overlay.hide {
     animation: slideOutLeft 0.3s ease-in forwards;
   }
-  
+
   @keyframes slideInLeft {
     from {
       transform: translateX(-100%);
       opacity: 0;
     }
+
     to {
       transform: translateX(0);
       opacity: 1;
     }
   }
-  
+
   @keyframes slideOutLeft {
     from {
       transform: translateX(0);
       opacity: 1;
     }
+
     to {
       transform: translateX(-100%);
       opacity: 0;
     }
   }
-  
+
   /* Ensure dropdown menu is visible when shown */
   .dropdown-menu.show {
     display: block !important;
@@ -90,18 +92,18 @@
     transition: all 0.3s ease;
     padding: 8px 12px;
   }
-  
+
   #cartButton:hover {
     border-color: #007bff;
     background-color: #f8f9fa;
     transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
-  
+
   #cartButton:active {
     transform: translateY(0);
   }
-  
+
   #cartCount {
     min-width: 18px;
     height: 18px;
@@ -110,17 +112,17 @@
     justify-content: center;
     font-weight: 600;
   }
-  
+
   #cartButton svg {
     transition: transform 0.2s ease;
   }
-  
+
   #cartButton:hover svg {
     transform: scale(1.1);
   }
-  
+
   /* Fix for language dropdown specifically */
-  #langDropdownToggle + .dropdown-menu {
+  #langDropdownToggle+.dropdown-menu {
     position: absolute;
     top: 100%;
     left: 0;
@@ -131,11 +133,11 @@
     padding: 0.5rem 0;
     margin: 0.125rem 0 0;
     background-color: #fff;
-    border: 1px solid rgba(0,0,0,.15);
+    border: 1px solid rgba(0, 0, 0, .15);
     border-radius: 0.375rem;
-    box-shadow: 0 0.5rem 1rem rgba(0,0,0,.175);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, .175);
   }
-  
+
   /* Style for language dropdown items */
   .dropdown-menu .lang-option {
     padding: 0.5rem 1rem;
@@ -143,33 +145,33 @@
     white-space: nowrap;
     transition: background-color 0.2s ease;
   }
-  
+
   .dropdown-menu .lang-option:hover {
     background-color: #f8f9fa;
   }
-  
+
   /* Scrollbar styling for language dropdown */
   .dropdown-menu::-webkit-scrollbar {
     width: 6px;
   }
-  
+
   .dropdown-menu::-webkit-scrollbar-track {
     background: #f1f1f1;
     border-radius: 3px;
   }
-  
+
   .dropdown-menu::-webkit-scrollbar-thumb {
     background: #c1c1c1;
     border-radius: 3px;
   }
-  
+
   .dropdown-menu::-webkit-scrollbar-thumb:hover {
     background: #a8a8a8;
   }
 </style>
 <script>
   // Define Google Translate init BEFORE loading the external script
-  window.googleTranslateElementInit = function() {
+  window.googleTranslateElementInit = function () {
     try {
       console.log('Initializing Google Translate...');
       const element = document.getElementById('google_translate_element');
@@ -191,7 +193,7 @@
     // Restore saved language after widget mounts
     const saved = localStorage.getItem('selectedLanguage');
     if (saved && saved !== 'en') {
-      setTimeout(function(){ 
+      setTimeout(function () {
         if (window.applyLanguage) {
           window.applyLanguage(saved);
         }
@@ -200,11 +202,11 @@
         }
       }, 500);
     }
-    
+
     // Listen for Google Translate language changes
     if (typeof google !== 'undefined' && google.translate) {
       // Check for language changes periodically
-      setInterval(function() {
+      setInterval(function () {
         const googtransCookie = document.cookie.split(';').find(c => c.trim().startsWith('googtrans='));
         if (googtransCookie) {
           const lang = googtransCookie.split('=')[1].split('/')[2];
@@ -220,24 +222,24 @@
   };
 
   // Helper to set language reliably (retries until select appears)
-  window.applyLanguage = function(lang, onSuccess) {
+  window.applyLanguage = function (lang, onSuccess) {
     console.log('Applying language:', lang);
-    
+
     // First, try to set the cookie directly
     try {
-      document.cookie = 'googtrans=/en/' + lang + '; path=/; expires=' + new Date(Date.now() + 365*24*60*60*1000).toUTCString();
+      document.cookie = 'googtrans=/en/' + lang + '; path=/; expires=' + new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toUTCString();
       localStorage.setItem('selectedLanguage', lang);
       console.log('Language cookie set successfully');
-    } catch(e) {
+    } catch (e) {
       console.log('Cookie setting failed:', e);
     }
-    
+
     var attempts = 0;
-    function trySet(){
+    function trySet() {
       attempts++;
       var select = document.querySelector('#google_translate_element select');
       console.log('Attempt', attempts, 'to find Google Translate select:', !!select);
-      
+
       if (select && select.options && select.options.length) {
         console.log('Google Translate select found with', select.options.length, 'options');
         for (var i = 0; i < select.options.length; i++) {
@@ -255,7 +257,7 @@
           }
         }
       }
-      
+
       if (attempts < 3) {
         console.log('Retrying in 1000ms...');
         setTimeout(trySet, 1000);
@@ -268,10 +270,10 @@
     trySet();
   };
 
-  window.getLanguageName = function(code){
-    var map = { 
-      'en': '🇺🇸 English', 'fr': '🇫🇷 French', 'de': '🇩🇪 German', 'it': '🇮🇹 Italian', 
-      'es': '🇪🇸 Spanish', 'pt': '🇵🇹 Portuguese', 'ru': '🇷🇺 Russian', 
+  window.getLanguageName = function (code) {
+    var map = {
+      'en': '🇺🇸 English', 'fr': '🇫🇷 French', 'de': '🇩🇪 German', 'it': '🇮🇹 Italian',
+      'es': '🇪🇸 Spanish', 'pt': '🇵🇹 Portuguese', 'ru': '🇷🇺 Russian',
       'zh-CN': '🇨🇳 Chinese (Simplified)', 'zh-TW': '🇹🇼 Chinese (Traditional)',
       'ja': '🇯🇵 Japanese', 'ko': '🇰🇷 Korean', 'ar': '🇸🇦 Arabic', 'hi': '🇮🇳 Hindi',
       'th': '🇹🇭 Thai', 'vi': '🇻🇳 Vietnamese', 'tr': '🇹🇷 Turkish', 'pl': '🇵🇱 Polish',
@@ -288,7 +290,7 @@
   };
 
   // Function to update language button text
-  window.updateLanguageButton = function(lang) {
+  window.updateLanguageButton = function (lang) {
     const toggle = document.getElementById('langDropdownToggle');
     if (toggle) {
       const languageName = getLanguageName(lang);
@@ -298,12 +300,12 @@
   };
 
   // Function to translate page content directly
-  window.translatePageContent = function(targetLang) {
+  window.translatePageContent = function (targetLang) {
     console.log('Translating page content to:', targetLang);
-    
+
     // Get all text content that should be translated
     const textElements = document.querySelectorAll('h1, h2, h3, h4, h5, h6, p, span, a, button, li, td, th, label, div:not([class*="translate"]):not([id*="translate"])');
-    
+
     // Store original text for each element
     const originalTexts = new Map();
     textElements.forEach((element, index) => {
@@ -311,7 +313,7 @@
         originalTexts.set(index, element.textContent);
       }
     });
-    
+
     // Apply Google Translate styling to hide the widget
     const style = document.createElement('style');
     style.textContent = `
@@ -322,10 +324,10 @@
       body { top: 0 !important; }
     `;
     document.head.appendChild(style);
-    
+
     // Set the translation cookie
-    document.cookie = `googtrans=/en/${targetLang}; path=/; expires=${new Date(Date.now() + 365*24*60*60*1000).toUTCString()}`;
-    
+    document.cookie = `googtrans=/en/${targetLang}; path=/; expires=${new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toUTCString()}`;
+
     // Force Google Translate to re-translate
     if (typeof google !== 'undefined' && google.translate) {
       try {
@@ -349,7 +351,7 @@
         console.log('Google Translate API error:', error);
       }
     }
-    
+
     return false;
   };
 
@@ -357,14 +359,14 @@
   function initializeCart() {
     const cartButton = document.getElementById('cartButton');
     const cartCount = document.getElementById('cartCount');
-    
+
     if (cartButton && cartCount) {
       // Load cart count from localStorage
       const cartItems = JSON.parse(localStorage.getItem('cartItems') || '[]');
       updateCartCount(cartItems.length);
-      
+
       // Add click event to cart button
-      cartButton.addEventListener('click', function() {
+      cartButton.addEventListener('click', function () {
         console.log('Cart button clicked');
         // You can add cart modal or redirect to cart page here
         // For now, just show an alert
@@ -376,7 +378,7 @@
       });
     }
   }
-  
+
   function updateCartCount(count) {
     const cartCount = document.getElementById('cartCount');
     if (cartCount) {
@@ -384,17 +386,17 @@
       cartCount.style.display = count > 0 ? 'block' : 'none';
     }
   }
-  
+
   // Make updateCartCount globally available
   window.updateCartCount = updateCartCount;
-  
+
   // Function to add item to cart
-  window.addToCart = function(item) {
+  window.addToCart = function (item) {
     const cartItems = JSON.parse(localStorage.getItem('cartItems') || '[]');
-    
+
     // Check if item already exists
     const existingItem = cartItems.find(cartItem => cartItem.id === item.id);
-    
+
     if (existingItem) {
       existingItem.quantity += item.quantity || 1;
     } else {
@@ -407,45 +409,45 @@
         addedAt: new Date().toISOString()
       });
     }
-    
+
     // Save to localStorage
     localStorage.setItem('cartItems', JSON.stringify(cartItems));
-    
+
     // Update cart count
     updateCartCount(cartItems.length);
-    
+
     // Show success message
     console.log('Item added to cart:', item.name);
-    
+
     // You can add a toast notification here
     return true;
   };
-  
+
   // Function to remove item from cart
-  window.removeFromCart = function(itemId) {
+  window.removeFromCart = function (itemId) {
     const cartItems = JSON.parse(localStorage.getItem('cartItems') || '[]');
     const updatedItems = cartItems.filter(item => item.id !== itemId);
-    
+
     localStorage.setItem('cartItems', JSON.stringify(updatedItems));
     updateCartCount(updatedItems.length);
-    
+
     return true;
   };
-  
+
   // Function to get cart items
-  window.getCartItems = function() {
+  window.getCartItems = function () {
     return JSON.parse(localStorage.getItem('cartItems') || '[]');
   };
-  
+
   // Function to clear cart
-  window.clearCart = function() {
+  window.clearCart = function () {
     localStorage.removeItem('cartItems');
     updateCartCount(0);
     return true;
   };
-  
+
   // Test function for adding items to cart
-  window.testAddToCart = function() {
+  window.testAddToCart = function () {
     const testItem = {
       id: 'hiking-tour-' + Date.now(),
       name: 'Hiking Adventure Tour',
@@ -453,7 +455,7 @@
       quantity: 1,
       image: '/images/hiking-tour.jpg'
     };
-    
+
     if (window.addToCart) {
       window.addToCart(testItem);
       alert('Test item added to cart! Check the cart icon in the navbar.');
@@ -463,8 +465,8 @@
   };
 
   // Language functionality
-  document.addEventListener('DOMContentLoaded', function() {
-    function showSuccessPopup(lang){
+  document.addEventListener('DOMContentLoaded', function () {
+    function showSuccessPopup(lang) {
       const overlay = document.createElement('div');
       overlay.className = 'lang-popup-overlay';
       overlay.innerHTML = '<div class="lang-popup-card">\
@@ -472,56 +474,56 @@
           <span class="lang-popup-title">Language Updated</span>\
           <button class="lang-popup-close" aria-label="Close">×</button>\
         </div>\
-        <div class="lang-popup-body">Page translated to <strong>'+getLanguageName(lang)+'</strong></div>\
+        <div class="lang-popup-body">Page translated to <strong>'+ getLanguageName(lang) + '</strong></div>\
       </div>';
       document.body.appendChild(overlay);
       const closeBtn = overlay.querySelector('.lang-popup-close');
-      function close(){ overlay.classList.add('hide'); setTimeout(()=>overlay.remove(), 220); }
+      function close() { overlay.classList.add('hide'); setTimeout(() => overlay.remove(), 220); }
       closeBtn.addEventListener('click', close);
       setTimeout(close, 3000);
     }
 
     // Simple function to initialize language functionality
     let isInitialized = false;
-    
+
     function initLanguageDropdown() {
       if (isInitialized) {
         console.log('Language dropdown already initialized, skipping...');
         return;
       }
-      
+
       console.log('=== LANGUAGE DROPDOWN DEBUG ===');
       console.log('Current URL:', window.location.href);
-      
+
       const langToggleEl = document.getElementById('langDropdownToggle');
       const langOptions = document.querySelectorAll('.lang-option');
-      
+
       if (!langToggleEl || langOptions.length === 0) {
         console.log('Elements not ready, retrying...');
         setTimeout(initLanguageDropdown, 500);
         return;
       }
-      
+
       console.log('✅ All elements found, initializing...');
       isInitialized = true;
-      
+
       // Remove any existing event listeners to prevent duplicates
       const newToggle = langToggleEl.cloneNode(true);
       langToggleEl.parentNode.replaceChild(newToggle, langToggleEl);
       const freshToggle = document.getElementById('langDropdownToggle');
-      
+
       // Simple manual dropdown toggle (no Bootstrap dependency)
       let isOpen = false;
-      
-      freshToggle.addEventListener('click', function(e) {
+
+      freshToggle.addEventListener('click', function (e) {
         e.preventDefault();
         e.stopPropagation();
-        
+
         const dropdown = this.closest('.dropdown');
         const menu = dropdown.querySelector('.dropdown-menu');
-        
+
         isOpen = !isOpen;
-        
+
         if (isOpen) {
           menu.classList.add('show');
           this.setAttribute('aria-expanded', 'true');
@@ -532,9 +534,9 @@
           console.log('Dropdown closed manually');
         }
       });
-      
+
       // Close dropdown when clicking outside
-      document.addEventListener('click', function(e) {
+      document.addEventListener('click', function (e) {
         if (freshToggle && freshToggle.contains && !freshToggle.contains(e.target)) {
           const dropdown = freshToggle.closest('.dropdown');
           if (dropdown && !dropdown.contains(e.target)) {
@@ -547,24 +549,24 @@
           }
         }
       });
-      
+
       // Attach click handlers to language options
       langOptions.forEach((option, index) => {
-        option.addEventListener('click', function(e) {
+        option.addEventListener('click', function (e) {
           e.preventDefault();
           const lang = this.getAttribute('data-lang');
-          
+
           if (!lang) return;
-          
+
           console.log('Language selected:', lang);
-          
+
           // Update button text immediately
           if (freshToggle) {
             const languageName = getLanguageName(lang);
             freshToggle.textContent = languageName;
             console.log('Button text updated to:', languageName);
           }
-          
+
           // Close dropdown
           const dropdown = freshToggle ? freshToggle.closest('.dropdown') : null;
           if (dropdown) {
@@ -577,20 +579,20 @@
               isOpen = false;
             }
           }
-          
+
           // Apply language translation
           console.log('Applying language translation for:', lang);
-          
+
           // Set language preference
           localStorage.setItem('selectedLanguage', lang);
-          document.cookie = 'googtrans=/en/' + lang + '; path=/; expires=' + new Date(Date.now() + 365*24*60*60*1000).toUTCString();
-          
+          document.cookie = 'googtrans=/en/' + lang + '; path=/; expires=' + new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toUTCString();
+
           // Show success popup
           showSuccessPopup(lang);
-          
+
           // Try to translate immediately without page reload
           console.log('Attempting immediate translation to:', lang);
-          
+
           // Use the new translation function
           if (window.translatePageContent) {
             if (window.translatePageContent(lang)) {
@@ -605,7 +607,7 @@
           }
         });
       });
-      
+
       // Restore saved language
       const saved = localStorage.getItem('selectedLanguage');
       if (saved && freshToggle) {
@@ -613,7 +615,7 @@
         freshToggle.textContent = languageName;
         console.log('Restored saved language:', saved, '->', languageName);
       }
-      
+
       // Show success popup if just changed
       const justChanged = sessionStorage.getItem('langChanged') === '1';
       const changedTo = sessionStorage.getItem('langChangedTo');
@@ -622,17 +624,17 @@
         sessionStorage.removeItem('langChanged');
         sessionStorage.removeItem('langChangedTo');
       }
-      
+
       console.log('=== LANGUAGE DROPDOWN INITIALIZATION COMPLETE ===');
     }
-    
+
     // Initialize with a single call and retry if needed
     initLanguageDropdown();
     setTimeout(initLanguageDropdown, 2000); // Single retry
-    
+
     // Initialize cart functionality
     initializeCart();
-    
+
     // Ensure Google Translate loads
     setTimeout(() => {
       if (typeof google === 'undefined' || !google.translate) {
@@ -643,15 +645,15 @@
         document.head.appendChild(script);
       }
     }, 3000);
-    
+
     // Global language functionality - ensure it works on all pages
     window.initLanguageDropdown = initLanguageDropdown;
-    
+
     // Re-initialize when navigating between pages (for SPA-like behavior)
-    window.addEventListener('popstate', function() {
+    window.addEventListener('popstate', function () {
       setTimeout(initLanguageDropdown, 100);
     });
-    
+
     // Additional debugging - check if basic dropdown works
     setTimeout(() => {
       const toggle = document.getElementById('langDropdownToggle');
@@ -659,9 +661,9 @@
         console.log('Testing basic dropdown functionality...');
         console.log('Toggle element classes:', toggle.className);
         console.log('Toggle element attributes:', toggle.attributes);
-        
+
         // Test if clicking the toggle works
-        toggle.addEventListener('click', function(e) {
+        toggle.addEventListener('click', function (e) {
           console.log('Toggle clicked - checking dropdown state...');
           const dropdown = this.closest('.dropdown');
           const menu = dropdown.querySelector('.dropdown-menu');
@@ -672,5 +674,6 @@
     }, 3000);
   });
 </script>
-<script id="google-translate-script" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+<script id="google-translate-script"
+  src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 <div id="google_translate_element" style="display:none"></div>

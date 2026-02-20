@@ -94,13 +94,13 @@ li{
      border: none;
       background-color: transparent;
       padding: 20px 25px;
-      font-size: 16px;
+      font-size: 18px;
    }
     
    /* Remove default arrow */
    .accordion-button::after { display: none;  }
-    .accordion-button.collapsed::before { content: "+"; margin-right:10px; font-weight:bold; font-size: 18px; }
-    .accordion-button:not(.collapsed)::before { content: "-"; margin-right:10px; font-weight:bold; font-size: 18px; }
+    .accordion-button.collapsed::before { content: "+"; margin-right:10px; font-weight:bold; font-size: 20px; }
+    .accordion-button:not(.collapsed)::before { content: "-"; margin-right:10px; font-weight:bold; font-size: 20px; }
 
          /* ✅ No border when open */
    .accordion-collapse.collapse.show,
