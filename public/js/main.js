@@ -154,8 +154,6 @@ function throttle(func, limit) {
 
 // Export functions for global use
 window.MagpieWebsite = {
-  changeLanguage: applyLanguage,
-  resetLanguage: resetToEnglish,
   getCurrentLanguage: () => currentLanguage
 };
 
