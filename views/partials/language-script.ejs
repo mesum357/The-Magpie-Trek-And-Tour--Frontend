@@ -585,26 +585,22 @@
 
           // Set language preference
           localStorage.setItem('selectedLanguage', lang);
-          document.cookie = 'googtrans=/en/' + lang + '; path=/; expires=' + new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toUTCString();
 
-          // Show success popup
-          showSuccessPopup(lang);
-
-          // Try to translate immediately without page reload
-          console.log('Attempting immediate translation to:', lang);
-
-          // Use the new translation function
-          if (window.translatePageContent) {
-            if (window.translatePageContent(lang)) {
-              console.log('Page translated successfully to:', lang);
-            } else {
-              console.log('Translation failed, using fallback reload');
-              setTimeout(() => location.reload(), 1000);
-            }
+          if (lang === 'en') {
+            document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+            document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=' + location.hostname + ';';
+            document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.' + location.hostname + ';';
           } else {
-            console.log('Translation function not available, using fallback reload');
-            setTimeout(() => location.reload(), 1000);
+            const expiry = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toUTCString();
+            document.cookie = 'googtrans=/en/' + lang + '; path=/; expires=' + expiry;
+            document.cookie = 'googtrans=/en/' + lang + '; path=/; domain=' + location.hostname + '; expires=' + expiry;
+            document.cookie = 'googtrans=/en/' + lang + '; path=/; domain=.' + location.hostname + '; expires=' + expiry;
           }
+
+          sessionStorage.setItem('langChanged', '1');
+          sessionStorage.setItem('langChangedTo', lang);
+
+          location.reload();
         });
       });
 

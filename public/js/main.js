@@ -16,86 +16,9 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 // Language System Functions
+// Handled by language-script.ejs natively.
 function initializeLanguageSystem() {
-  // Load saved language preference
-  const savedLanguage = localStorage.getItem('selectedLanguage') || 'en';
-  currentLanguage = savedLanguage;
-
-  // Set up language change listener
-  const languageSelect = document.getElementById('languageSelect');
-  if (languageSelect) {
-    languageSelect.value = currentLanguage;
-    languageSelect.addEventListener('change', handleLanguageChange);
-  }
-
-  // Apply current language
-  if (currentLanguage !== 'en') {
-    applyLanguage(currentLanguage);
-  }
-}
-
-function handleLanguageChange(event) {
-  const newLanguage = event.target.value;
-  currentLanguage = newLanguage;
-
-  // Save preference
-  localStorage.setItem('selectedLanguage', newLanguage);
-
-  // Apply language
-  if (newLanguage === 'en') {
-    resetToEnglish();
-  } else {
-    applyLanguage(newLanguage);
-  }
-}
-
-function applyLanguage(language) {
-  // This function can be extended with custom translations
-  // For now, it uses Google Translate API
-  if (typeof google !== 'undefined' && google.translate) {
-    const translateElement = google.translate.TranslateElement.getInstance();
-    if (translateElement) {
-      translateElement.translatePage(language);
-    }
-  } else {
-    // Load Google Translate if not available
-    loadGoogleTranslate(language);
-  }
-}
-
-function resetToEnglish() {
-  if (typeof google !== 'undefined' && google.translate) {
-    const translateElement = google.translate.TranslateElement.getInstance();
-    if (translateElement) {
-      translateElement.translatePage('en');
-    }
-  }
-}
-
-function loadGoogleTranslate(targetLanguage) {
-  if (!document.getElementById('google-translate-script')) {
-    const script = document.createElement('script');
-    script.id = 'google-translate-script';
-    script.src = '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
-    document.head.appendChild(script);
-
-    window.googleTranslateElementInit = function () {
-      new google.translate.TranslateElement({
-        pageLanguage: 'en',
-        includedLanguages: 'ar,zh,fr,de,it,ms,ru,es',
-        layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
-        autoDisplay: false
-      }, 'google_translate_element');
-
-      // Trigger translation after initialization
-      setTimeout(() => {
-        const translateElement = google.translate.TranslateElement.getInstance();
-        if (translateElement) {
-          translateElement.translatePage(targetLanguage);
-        }
-      }, 1000);
-    };
-  }
+  // Do nothing
 }
 
 // Component Initialization
