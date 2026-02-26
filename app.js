@@ -72,7 +72,11 @@ app.set('view engine', 'ejs');
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Serve uploaded images from shared uploads directory (admin panel's uploads)
-app.use('/uploads', express.static(path.join(__dirname, '..', 'Tourist Website Admin panel', 'public', 'uploads')));
+const fs = require('fs');
+const localAdminPath = path.join(__dirname, '..', 'Tourist Website Admin panel', 'public', 'uploads');
+const vpsAdminPath = path.join(__dirname, '..', 'magpie-admin', 'public', 'uploads');
+const adminUploadsPath = fs.existsSync(vpsAdminPath) ? vpsAdminPath : localAdminPath;
+app.use('/uploads', express.static(adminUploadsPath));
 
 // Expose admin panel base URL for uploaded assets to all views
 app.use(function (req, res, next) {
