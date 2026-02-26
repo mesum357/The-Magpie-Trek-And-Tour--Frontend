@@ -501,6 +501,47 @@ bookingSchema.pre('save', function (next) {
 
 const Booking = mongoose.models.Booking || mongoose.model('Booking', bookingSchema);
 
+// Testimonial Schema
+const testimonialSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    country: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    avatarUrl: {
+        type: String,
+        default: ''
+    },
+    storyImgUrl: {
+        type: String,
+        default: ''
+    },
+    active: {
+        type: Boolean,
+        default: true
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now
+    },
+    updatedAt: {
+        type: Date,
+        default: Date.now
+    }
+});
+
+testimonialSchema.pre('save', function (next) {
+    this.updatedAt = Date.now();
+    next();
+});
+
+const Testimonial = mongoose.models.Testimonial || mongoose.model('Testimonial', testimonialSchema);
+
 // Payment Requests (submitted from website, viewed in admin)
 const paymentRequestSchema = new mongoose.Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
@@ -527,6 +568,6 @@ paymentRequestSchema.pre('save', function (next) {
 
 const PaymentRequest = mongoose.models.PaymentRequest || mongoose.model('PaymentRequest', paymentRequestSchema);
 
-module.exports = { User, Order, RecentTrip, TourPackage, Hiking, Review, Booking, PaymentRequest };
+module.exports = { User, Order, RecentTrip, TourPackage, Hiking, Review, Booking, PaymentRequest, Testimonial };
 
 

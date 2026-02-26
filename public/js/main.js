@@ -56,8 +56,6 @@ function initializeSmoothScrolling() {
 
 // Scroll Effects
 function initializeScrollEffects() {
-  // Parallax effect for hero section removed as requested
-
   // Fade in elements on scroll
   const fadeElements = document.querySelectorAll('.fade-in');
   if (fadeElements.length > 0) {
@@ -159,7 +157,7 @@ window.MagpieWebsite = {
 
 
 // CARDS SECTION 1
-// Intersection observer for cards & stats, updated for 2s animation durations
+// Intersection observer for cards & stats
 (function () {
   const cardOptions = { root: null, rootMargin: '0px', threshold: 0.15 };
   const cards = document.querySelectorAll('.service-card');
@@ -167,7 +165,6 @@ window.MagpieWebsite = {
   const cardObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
-        // add slight stagger between cards for nicer flow
         const el = entry.target;
         const delayMap = { left: 0, up: 120, right: 240 };
         const animType = el.dataset.anim || el.classList.contains('anim-left') ? 'left' : (el.classList.contains('anim-up') ? 'up' : 'right');
@@ -180,166 +177,191 @@ window.MagpieWebsite = {
   }, cardOptions);
 
   cards.forEach(c => cardObserver.observe(c));
-
 })();
 
+/* ===================================================
+   TESTIMONIAL STORIES — Instagram Story Slider (2 at a time)
+   Uses window.__TESTIMONIALS__ injected from server
+   =================================================== */
 (function () {
-  const DATA = [
-    {
-      text: "The Magpie Treks & Tours made my trip unforgettable. I felt safe, inspired, and deeply connected to the landscape. I would recommend MTT to anyone with a thirst for genuine adventure!",
-      name: "Sarah K.",
-      loc: "United States",
-      avatar: "https://randomuser.me/api/portraits/women/68.jpg"
-    },
-    {
-      text: "The attention to detail and the professionalism of the guides made our experience remarkable. MTT took care of everything — we only had to enjoy the view.",
-      name: "Ahmed R.",
-      loc: "United Kingdom",
-      avatar: "https://randomuser.me/api/portraits/men/45.jpg"
-    },
-    {
-      text: "Professional guides, amazing routes and excellent food. The logistics were seamless — best trip I’ve done in years.",
-      name: "Lina M.",
-      loc: "Canada",
-      avatar: "https://randomuser.me/api/portraits/women/25.jpg"
-    },
-    {
-      text: "If you want real, off-the-beaten-path adventure — this is it. Highly recommended for serious trekkers.",
-      name: "Mateo S.",
-      loc: "Spain",
-      avatar: "https://randomuser.me/api/portraits/men/11.jpg"
-    }
-  ];
+  // Read testimonials from server-injected data
+  var serverData = window.__TESTIMONIALS__ || [];
 
-  const cardsWrap = document.getElementById('tsCards');
-  const dotsWrap = document.getElementById('tsDots');
-
-  // Render cards
-  DATA.forEach((t) => {
-    const card = document.createElement('article');
-    card.className = 'ts-card';
-    card.setAttribute('role', 'group');
-    card.setAttribute('aria-roledescription', 'testimonial');
-    card.setAttribute('aria-label', `${t.name}, ${t.loc}`);
-    card.tabIndex = -1;
-    card.innerHTML = `
-        <p class="ts-text">${t.text}</p>
-        <div class="ts-author">
-          <img src="${t.avatar}" alt="${t.name}">
-          <div>
-            <strong>${t.name}</strong><br/><small>${t.loc}</small>
-          </div>
-        </div>
-        <div class="ts-quote" aria-hidden="true">“”</div>
-      `;
-    cardsWrap.appendChild(card);
+  // Map server data to story card format
+  var DATA = serverData.map(function (t) {
+    return {
+      name: t.name || 'Guest',
+      loc: t.country || '',
+      avatar: t.avatarUrl || '',
+      storyImg: t.storyImgUrl || ''
+    };
   });
 
-  // decorative paper layers
-  for (let i = 0; i < 3; i++) {
-    const p = document.createElement('div');
-    p.className = 'ts-paper';
-    p.style.bottom = (-18 - (i * 6)) + 'px';
-    p.style.opacity = (0.12 - i * 0.03);
-    cardsWrap.appendChild(p);
+  // If no testimonials, hide the section and exit
+  if (DATA.length === 0) {
+    var section = document.getElementById('testimonials-section');
+    if (section) section.style.display = 'none';
+    return;
   }
 
-  const cards = Array.from(cardsWrap.querySelectorAll('.ts-card'));
-  let current = 0;
+  var storiesWrap = document.getElementById('tsStories');
+  var progressWrap = document.getElementById('tsProgressBars');
+  var dotsWrap = document.getElementById('tsStoryDots');
 
-  // Create dots and attach handlers
-  DATA.forEach((_, i) => {
-    const btn = document.createElement('button');
-    btn.className = 'ts-dot';
-    btn.setAttribute('aria-label', 'Go to testimonial ' + (i + 1));
-    btn.setAttribute('aria-pressed', 'false');
-    btn.addEventListener('click', () => goTo(i));
-    // allow tap area larger on mobile by adding padding via css
-    dotsWrap.appendChild(btn);
+  if (!storiesWrap || !progressWrap || !dotsWrap) return;
+
+  var PAIR_SIZE = 2; // Show 2 stories at a time
+  var totalPairs = Math.ceil(DATA.length / PAIR_SIZE);
+
+  /* -- Render Story Cards -- */
+  DATA.forEach(function (t, i) {
+    var story = document.createElement('article');
+    story.className = 'ts-story';
+    story.setAttribute('role', 'group');
+    story.setAttribute('aria-roledescription', 'story');
+    story.setAttribute('aria-label', t.name + ', ' + t.loc);
+    story.dataset.index = i;
+
+    var imgSrc = t.storyImg || '';
+    story.innerHTML =
+      '<img class="ts-story-img" src="' + imgSrc + '" alt="Testimonial from ' + t.name + '" loading="lazy">' +
+      '<div class="ts-story-overlay">' +
+      '<div class="ts-story-author">' +
+      (t.avatar ? '<img class="ts-story-avatar" src="' + t.avatar + '" alt="' + t.name + '">' : '') +
+      '<div>' +
+      '<span class="ts-story-name">' + t.name + '</span>' +
+      '<span class="ts-story-loc">' + t.loc + '</span>' +
+      '</div>' +
+      '</div>' +
+      '</div>';
+    story.addEventListener('click', function () {
+      var pairIndex = Math.floor(i / PAIR_SIZE);
+      goTo(pairIndex);
+    });
+    storiesWrap.appendChild(story);
   });
-  const dots = Array.from(dotsWrap.children);
 
+  /* -- Render Progress Bars (one per pair) -- */
+  for (var p = 0; p < totalPairs; p++) {
+    var bar = document.createElement('div');
+    bar.className = 'ts-progress-bar';
+    bar.innerHTML = '<div class="ts-progress-fill"></div>';
+    (function (idx) {
+      bar.addEventListener('click', function () { goTo(idx); });
+    })(p);
+    progressWrap.appendChild(bar);
+  }
+
+  /* -- Render Dots (one per pair) -- */
+  for (var d = 0; d < totalPairs; d++) {
+    var dot = document.createElement('button');
+    dot.className = 'ts-story-dot';
+    dot.setAttribute('aria-label', 'Go to stories ' + (d * PAIR_SIZE + 1) + '-' + Math.min((d + 1) * PAIR_SIZE, DATA.length));
+    dot.setAttribute('aria-pressed', 'false');
+    (function (idx) {
+      dot.addEventListener('click', function () { goTo(idx); });
+    })(d);
+    dotsWrap.appendChild(dot);
+  }
+
+  var stories = Array.from(storiesWrap.querySelectorAll('.ts-story'));
+  var bars = Array.from(progressWrap.querySelectorAll('.ts-progress-bar'));
+  var dots = Array.from(dotsWrap.querySelectorAll('.ts-story-dot'));
+  var currentPair = 0;
+  var autoTimer = null;
+  var AUTO_INTERVAL = 5000;
+
+  /* -- Render / Update -- */
   function render() {
-    cards.forEach((c, i) => {
-      c.classList.remove('front', 'back', 'next');
-      if (i === current) c.classList.add('front');
-      else if (i === (current - 1 + cards.length) % cards.length) c.classList.add('back');
-      else if (i === (current + 1) % cards.length) c.classList.add('next');
-      else {
-        c.style.opacity = '0';
-        c.style.transform = 'translateX(-50%) translateY(34px) scale(.98)';
-        c.style.zIndex = 0;
-      }
-      // clear inline for visible ones
-      if (c.classList.contains('front') || c.classList.contains('next') || c.classList.contains('back')) {
-        c.style.opacity = '';
-        c.style.transform = '';
-        c.style.zIndex = '';
-      }
+    var startIdx = currentPair * PAIR_SIZE;
+    var endIdx = startIdx + PAIR_SIZE;
+
+    stories.forEach(function (s, i) {
+      s.classList.toggle('active', i >= startIdx && i < endIdx);
     });
 
-    dots.forEach((d, idx) => {
-      d.classList.toggle('active', idx === current);
-      d.setAttribute('aria-pressed', idx === current ? 'true' : 'false');
+    bars.forEach(function (b, i) {
+      b.classList.remove('active', 'completed');
+      if (i < currentPair) b.classList.add('completed');
+      else if (i === currentPair) b.classList.add('active');
+    });
+
+    dots.forEach(function (d, i) {
+      d.classList.toggle('active', i === currentPair);
+      d.setAttribute('aria-pressed', i === currentPair ? 'true' : 'false');
     });
   }
 
-  function goTo(i) {
-    current = ((i % cards.length) + cards.length) % cards.length;
+  function goTo(pairIdx) {
+    currentPair = ((pairIdx % totalPairs) + totalPairs) % totalPairs;
     render();
-    // focus front card for screen-reader users
-    const front = cards[current];
-    if (front) front.focus({ preventScroll: true });
+    resetAutoAdvance();
   }
 
-  // keyboard nav (left/right)
-  const root = document.getElementById('testimonials-section');
-  root.addEventListener('keydown', (e) => {
-    if (e.key === 'ArrowLeft') { goTo(current - 1); }
-    if (e.key === 'ArrowRight') { goTo(current + 1); }
-  });
+  function next() {
+    goTo(currentPair + 1);
+  }
 
-  // TOUCH / SWIPE support for mobile
-  let startX = 0, startY = 0, isMoving = false;
-  const threshold = 40; // px
-  const stage = document.querySelector('#testimonials-section .ts-stage');
+  function resetAutoAdvance() {
+    if (autoTimer) clearInterval(autoTimer);
+    autoTimer = setInterval(next, AUTO_INTERVAL);
+  }
 
-  stage.addEventListener('touchstart', (e) => {
-    if (e.touches.length === 1) {
-      startX = e.touches[0].clientX;
-      startY = e.touches[0].clientY;
-      isMoving = true;
-    }
-  }, { passive: true });
+  /* -- Keyboard nav -- */
+  var root = document.getElementById('testimonials-section');
+  if (root) {
+    root.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowLeft') { goTo(currentPair - 1); }
+      if (e.key === 'ArrowRight') { goTo(currentPair + 1); }
+    });
+  }
 
-  stage.addEventListener('touchmove', (e) => {
-    // prevent vertical scroll lock; we only track horizontal distance
-    if (!isMoving || e.touches.length !== 1) return;
-    const dx = e.touches[0].clientX - startX;
-    const dy = e.touches[0].clientY - startY;
-    // if vertical move is bigger, treat as scroll
-    if (Math.abs(dy) > Math.abs(dx)) {
+  /* -- Touch / Swipe -- */
+  var startX = 0, startY = 0, isMoving = false;
+  var threshold = 40;
+  var stage = document.querySelector('#testimonials-section .ts-stage');
+
+  if (stage) {
+    stage.addEventListener('touchstart', function (e) {
+      if (e.touches.length === 1) {
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+        isMoving = true;
+      }
+    }, { passive: true });
+
+    stage.addEventListener('touchmove', function (e) {
+      if (!isMoving || e.touches.length !== 1) return;
+      var dx = e.touches[0].clientX - startX;
+      var dy = e.touches[0].clientY - startY;
+      if (Math.abs(dy) > Math.abs(dx)) {
+        isMoving = false;
+        return;
+      }
+      if (Math.abs(dx) > 8) e.preventDefault();
+    }, { passive: false });
+
+    stage.addEventListener('touchend', function (e) {
+      if (!isMoving) return;
+      var endX = (e.changedTouches && e.changedTouches[0]) ? e.changedTouches[0].clientX : startX;
+      var dx = endX - startX;
+      if (Math.abs(dx) > threshold) {
+        if (dx > 0) goTo(currentPair - 1);
+        else goTo(currentPair + 1);
+      }
       isMoving = false;
-      return;
-    }
-    // prevent default horizontal page scroll on significant movement
-    if (Math.abs(dx) > 8) e.preventDefault();
-  }, { passive: false });
+    });
 
-  stage.addEventListener('touchend', (e) => {
-    if (!isMoving) return;
-    const endX = (e.changedTouches && e.changedTouches[0]) ? e.changedTouches[0].clientX : startX;
-    const dx = endX - startX;
-    if (Math.abs(dx) > threshold) {
-      if (dx > 0) goTo(current - 1); // swipe right -> prev
-      else goTo(current + 1);        // swipe left -> next
-    }
-    isMoving = false;
-  });
+    /* -- Pause auto-advance on hover -- */
+    stage.addEventListener('mouseenter', function () {
+      if (autoTimer) clearInterval(autoTimer);
+    });
+    stage.addEventListener('mouseleave', function () {
+      resetAutoAdvance();
+    });
+  }
 
-  // init
+  /* -- Init -- */
   render();
-
-  // ensure focusable container for keyboard users
-  cardsWrap.tabIndex = -1;
+  resetAutoAdvance();
 })();

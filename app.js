@@ -15,7 +15,7 @@ const fs = require('fs');
 
 
 // Import Mongoose models from db.js
-const { User, Gallery, TourPackage, Hiking, RecentTrip, Review, Booking, PaymentRequest } = require('./db');
+const { User, Gallery, TourPackage, Hiking, RecentTrip, Review, Booking, PaymentRequest, Testimonial } = require('./db');
 
 // Stripe removed - manual payments only
 
@@ -192,6 +192,10 @@ app.get('/', async function (req, res) {
             .sort({ createdAt: -1 })
             .limit(4);
 
+        // Fetch active testimonials
+        const testimonials = await Testimonial.find({ active: true })
+            .sort({ createdAt: -1 });
+
         res.render('index', {
 
 
@@ -200,6 +204,7 @@ app.get('/', async function (req, res) {
             isAuthenticated: req.isAuthenticated(),
             tourPackages: tourPackages,
             recentTrips: recentTrips,
+            testimonials: testimonials,
             currentPage: 'home'
         });
     } catch (error) {
@@ -209,6 +214,7 @@ app.get('/', async function (req, res) {
             isAuthenticated: req.isAuthenticated(),
             tourPackages: [],
             recentTrips: [],
+            testimonials: [],
             currentPage: 'home'
         });
     }
@@ -317,12 +323,26 @@ app.get('/logout', function (req, res, next) {
 });
 
 // Public routes - accessible to everyone
-app.get("/about", function (req, res) {
-    res.render("about", {
-        user: req.user,
-        isAuthenticated: req.isAuthenticated(),
-        currentPage: 'about'
-    });
+app.get("/about", async function (req, res) {
+    try {
+        const testimonials = await Testimonial.find({ active: true })
+            .sort({ createdAt: -1 });
+
+        res.render("about", {
+            user: req.user,
+            isAuthenticated: req.isAuthenticated(),
+            testimonials: testimonials,
+            currentPage: 'about'
+        });
+    } catch (error) {
+        console.error('Error fetching testimonials for about page:', error);
+        res.render("about", {
+            user: req.user,
+            isAuthenticated: req.isAuthenticated(),
+            testimonials: [],
+            currentPage: 'about'
+        });
+    }
 });
 
 app.get("/contact", function (req, res) {

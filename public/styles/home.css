@@ -2152,16 +2152,15 @@ iframe.VIpgJd-ZVi9od-ORHb-OEVmcd {
   }
 }
 
-/* Prevent this block's styles from bleeding into the rest of the site
-     by making the most specific selectors possible. */
+/* ═══════════════════════════════════════════════════════
+   TESTIMONIAL STORIES — Instagram / Facebook Story Style
+   ═══════════════════════════════════════════════════════ */
 
-
-/* Section-scoped responsive styles */
 #testimonials-section {
   background: #f2fbfa;
-  padding: 72px 16px 120px;
+  padding: 72px 16px 64px;
   position: relative;
-  overflow: visible;
+  overflow: hidden;
 }
 
 .ts-inner {
@@ -2183,285 +2182,239 @@ iframe.VIpgJd-ZVi9od-ORHb-OEVmcd {
   font-weight: 700;
   font-size: clamp(22px, 4vw, 44px);
   color: #072221;
-  margin: 0 0 32px;
+  margin: 0 0 40px;
   line-height: 1.04;
 }
 
-/* stage */
+/* ── Story Stage ── */
 .ts-stage {
   position: relative;
-  min-height: 320px;
   display: flex;
+  flex-direction: column;
   align-items: center;
+  gap: 28px;
+}
+
+/* ── Stories Container (horizontal scroll, 2 visible) ── */
+.ts-stories {
+  display: flex;
+  gap: 24px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding: 10px 40px 20px;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
   justify-content: center;
 }
 
-/* avatars */
-.ts-avatars {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  pointer-events: none;
+.ts-stories::-webkit-scrollbar {
+  display: none;
 }
 
-.ts-avatar {
-  position: absolute;
-  left: calc(var(--x, 10%));
-  top: calc(var(--y, 50%));
-  width: 72px;
-  height: 72px;
-  transform: translate(-50%, -50%);
-  border-radius: 50%;
-  padding: 6px;
-  box-shadow: 0 12px 28px rgba(2, 34, 30, 0.06);
-  animation: tsFloat 6s ease-in-out infinite;
+/* ── Individual Story Card (2 visible at a time) ── */
+.ts-story {
+  flex: 0 0 calc((100% - 24px) / 2);
+  max-width: 360px;
+  aspect-ratio: 9 / 16;
+  border-radius: 16px;
+  overflow: hidden;
+  position: relative;
+  scroll-snap-align: center;
+  cursor: pointer;
+  transition: transform 0.45s cubic-bezier(.22, .9, .32, 1),
+    box-shadow 0.45s ease,
+    opacity 0.45s ease;
+  box-shadow: 0 8px 28px rgba(6, 20, 22, 0.12);
+  opacity: 0.55;
+  transform: scale(0.92);
 }
 
-.ts-avatar img {
+.ts-story.active {
+  transform: scale(1);
+  opacity: 1;
+  box-shadow: 0 16px 48px rgba(6, 20, 22, 0.22);
+}
+
+.ts-story:hover {
+  transform: scale(0.96);
+  opacity: 0.8;
+}
+
+.ts-story.active:hover {
+  transform: scale(1.02);
+  opacity: 1;
+}
+
+/* Story background image */
+.ts-story-img {
   width: 100%;
   height: 100%;
-  border-radius: 999px;
-  display: block;
   object-fit: cover;
-  border: 6px solid #fff;
-  box-shadow: 0 6px 18px rgba(3, 24, 22, 0.06);
+  display: block;
 }
 
-.ts-avatar:nth-child(2) {
-  animation-delay: .4s
-}
-
-.ts-avatar:nth-child(3) {
-  animation-delay: .8s
-}
-
-.ts-avatar:nth-child(4) {
-  animation-delay: 1.2s
-}
-
-.ts-avatar:nth-child(5) {
-  animation-delay: 1.6s
-}
-
-@keyframes tsFloat {
-  0% {
-    transform: translate(-50%, -50%) translateY(0);
-  }
-
-  50% {
-    transform: translate(-50%, -50%) translateY(-8px);
-  }
-
-  100% {
-    transform: translate(-50%, -50%) translateY(0);
-  }
-}
-
-/* cards wrapper */
-.ts-cards {
-  position: relative;
-  z-index: 3;
-  width: min(780px, calc(100% - 48px));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 8px;
-}
-
-/* testimonial card */
-.ts-card {
-  width: 640px;
-  max-width: 100%;
-  background: #fff;
-  border-radius: 12px;
-  padding: 36px 44px;
-  box-shadow: 0 22px 40px rgba(6, 20, 22, 0.06);
-  border: 1px solid rgba(12, 40, 34, 0.03);
+/* Story gradient overlay */
+.ts-story-overlay {
   position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  transition: transform 520ms cubic-bezier(.22, .9, .32, 1), opacity 520ms ease;
-  opacity: 0;
-  will-change: transform, opacity;
+  inset: 0;
+  background: linear-gradient(180deg,
+      rgba(0, 0, 0, 0.05) 0%,
+      rgba(0, 0, 0, 0.0) 30%,
+      rgba(0, 0, 0, 0.25) 60%,
+      rgba(0, 0, 0, 0.75) 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 20px 16px;
 }
 
-/* stacked positions (visual stack) */
-.ts-card.back {
-  transform: translateX(-50%) translateY(28px) scale(.98);
-  opacity: .55;
+/* Story top ring (like Instagram story ring) */
+.ts-story::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #1fb6a6, #14a37f, #1fb6a6);
   z-index: 2;
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
-.ts-card.front {
-  transform: translateX(-50%) translateY(0) scale(1);
+.ts-story.active::before {
   opacity: 1;
-  z-index: 4;
 }
 
-.ts-card.next {
-  transform: translateX(-50%) translateY(14px) scale(.995);
-  opacity: .8;
-  z-index: 3;
-}
-
-/* quote mark */
-.ts-quote {
-  position: absolute;
-  right: 20px;
-  bottom: 18px;
-  font-size: 110px;
-  color: rgba(5, 20, 18, 0.04);
-  pointer-events: none;
-  user-select: none;
-}
-
-/* content */
-.ts-text {
-  color: #4b645f;
-  font-size: 18px;
-  line-height: 1.8;
+/* Story text content */
+.ts-story-quote {
+  color: #ffffff;
+  font-size: 13px;
+  line-height: 1.5;
   text-align: left;
-  margin: 0 0 18px;
-  max-width: 72ch;
+  margin-bottom: 14px;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.5);
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-.ts-author {
+.ts-story-author {
   display: flex;
-  gap: 12px;
+  gap: 10px;
   align-items: center;
-  margin-top: 10px;
-  justify-content: flex-start;
 }
 
-.ts-author img {
-  width: 44px;
-  height: 44px;
-  border-radius: 999px;
+.ts-story-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.8);
   object-fit: cover;
-  border: 2px solid #eee;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
 }
 
-.ts-author strong {
+.ts-story-name {
   font-weight: 700;
-  color: #081e1b;
+  color: #ffffff;
+  font-size: 13px;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
 }
 
-.ts-author small {
+.ts-story-loc {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 11px;
   display: block;
-  color: #6c7774;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
 }
 
-/* visual paper layers behind */
-.ts-paper {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 620px;
-  max-width: 92%;
-  height: 18px;
-  bottom: -18px;
-  border-radius: 10px;
-  background: rgba(6, 20, 22, 0.02);
-  filter: drop-shadow(0 14px 30px rgba(6, 20, 22, 0.04));
-  z-index: 1;
-}
-
-/* Dots fixed at bottom center (larger hit area on mobile) */
-.ts-dots {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: 14px;
-  z-index: 5;
+/* ── Progress Bars (Instagram-style) ── */
+.ts-progress-bars {
   display: flex;
-  gap: 12px;
+  gap: 4px;
+  width: min(500px, 80%);
+  padding: 0 4px;
+  justify-content: center;
+}
+
+.ts-progress-bar {
+  flex: 1;
+  height: 3px;
+  background: rgba(7, 34, 33, 0.12);
+  border-radius: 3px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.ts-progress-bar:hover {
+  background: rgba(7, 34, 33, 0.2);
+}
+
+.ts-progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #1fb6a6, #0b2322);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.ts-progress-bar.completed .ts-progress-fill {
+  width: 100%;
+}
+
+.ts-progress-bar.active .ts-progress-fill {
+  width: 100%;
+  animation: tsProgressGrow 5s linear forwards;
+}
+
+@keyframes tsProgressGrow {
+  from {
+    width: 0%;
+  }
+
+  to {
+    width: 100%;
+  }
+}
+
+/* ── Story Dots (like Instagram story indicators) ── */
+.ts-story-dots {
+  display: flex;
+  gap: 8px;
   justify-content: center;
   align-items: center;
-  padding: 6px 12px;
-  pointer-events: auto;
+  padding: 8px 0 0;
 }
 
-.ts-dot {
-  width: 14px;
-  height: 14px;
-  border-radius: 999px;
-  background: rgba(3, 24, 22, 0.12);
-  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.04);
-  cursor: pointer;
+.ts-story-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(7, 34, 33, 0.15);
   border: none;
   padding: 0;
+  cursor: pointer;
+  transition: all 0.35s cubic-bezier(.22, .9, .32, 1);
 }
 
-.ts-dot.active {
+.ts-story-dot.active {
+  width: 24px;
+  border-radius: 999px;
   background: #0b2322;
-  transform: scale(1.12);
 }
 
-/* bigger tappable area on small screens */
-@media (max-width:520px) {
-  .ts-dot {
-    width: 18px;
-    height: 18px;
-  }
-
-  .ts-dots {
-    bottom: 10px;
-  }
-
-  .ts-avatars {
-    display: none;
-  }
-
-  /* hide floating avatars on small screens */
-  #testimonials-section {
-    padding: 56px 10px 140px;
-  }
-
-  .ts-card {
-    padding: 22px 18px;
-    width: 92%;
-    left: 50%;
-    transform: translateX(-50%);
-  }
-
-  .ts-paper {
-    width: 86%;
-  }
-
-  .ts-quote {
-    display: none;
-  }
-
-  .ts-heading {
-    font-size: 26px;
-    margin-bottom: 20px;
-  }
-
-  .ts-text {
-    font-size: 17px;
-    line-height: 1.7;
-  }
+.ts-story-dot:hover:not(.active) {
+  background: rgba(7, 34, 33, 0.35);
+  transform: scale(1.2);
 }
 
-/* medium screens */
-@media (max-width:920px) {
-  .ts-avatar {
-    width: 64px;
-    height: 64px;
-  }
-
-  .ts-card {
-    padding: 28px 24px;
-    width: 88%;
-  }
-
-  .ts-paper {
-    width: 86%;
-  }
-}
-
-/* focus styles for accessibility */
-.ts-dot:focus {
+/* focus styles */
+.ts-story-dot:focus {
   outline: 3px solid rgba(7, 128, 92, 0.14);
   outline-offset: 3px;
   border-radius: 999px;
@@ -2471,13 +2424,95 @@ iframe.VIpgJd-ZVi9od-ORHb-OEVmcd {
   outline: none;
 }
 
-.ts-card:focus {
-  outline: 3px solid rgba(0, 0, 0, 0.06);
-  outline-offset: 3px;
+/* ── Responsive ── */
+
+/* Large screens */
+@media (min-width: 1200px) {
+  .ts-stories {
+    max-width: 900px;
+  }
 }
 
+/* Medium screens */
+@media (max-width: 920px) {
+  .ts-stories {
+    max-width: 680px;
+    gap: 16px;
+    padding-left: 24px;
+    padding-right: 24px;
+  }
 
-/* Section scope: avoid interfering with rest of page */
+  .ts-story {
+    flex: 0 0 calc((100% - 16px) / 2);
+  }
+}
+
+/* Small screens */
+@media (max-width: 600px) {
+  #testimonials-section {
+    padding: 48px 0 48px;
+  }
+
+  .ts-heading {
+    font-size: 24px;
+    margin-bottom: 24px;
+    padding: 0 16px;
+  }
+
+  .ts-kicker {
+    padding: 0 16px;
+  }
+
+  .ts-story {
+    flex: 0 0 calc((100% - 12px) / 2);
+    max-width: 200px;
+  }
+
+  .ts-stories {
+    gap: 12px;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .ts-story-quote {
+    font-size: 12px;
+    -webkit-line-clamp: 3;
+  }
+
+  .ts-story-avatar {
+    width: 30px;
+    height: 30px;
+  }
+
+  .ts-story-name {
+    font-size: 12px;
+  }
+
+  .ts-progress-bars {
+    width: 90%;
+  }
+
+  .ts-story-dots .ts-story-dot {
+    width: 10px;
+    height: 10px;
+  }
+
+  .ts-story-dots .ts-story-dot.active {
+    width: 28px;
+  }
+}
+
+/* Very small screens */
+@media (max-width: 400px) {
+  .ts-story {
+    flex: 0 0 calc((100% - 10px) / 2);
+    max-width: 160px;
+  }
+
+  .ts-story-overlay {
+    padding: 14px 12px;
+  }
+}
 
 
 

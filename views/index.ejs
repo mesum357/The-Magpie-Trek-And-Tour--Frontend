@@ -221,33 +221,22 @@
         </section>
 
 
-        <!-- TESTIMONIALS SECTION -->
+        <!-- TESTIMONIALS SECTION — Instagram Story Style -->
         <section id="testimonials-section" aria-labelledby="testimonials-title" tabindex="0"
           style="font-family: 'HK Grotesk', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;">
           <div class="ts-inner">
             <p class="ts-kicker">Testimonials</p>
             <h2 id="testimonials-title" class="ts-heading">Testimonials From Fellow Adventurers</h2>
 
-            <div class="ts-stage" role="region" aria-label="Testimonials carousel">
-              <!-- floating avatars (replace with internet image URLs) -->
-              <div class="ts-avatars" aria-hidden="true">
-                <div class="ts-avatar" style="--x:6%;--y:46%;"><img
-                    src="https://randomuser.me/api/portraits/women/68.jpg" alt=""></div>
-                <div class="ts-avatar" style="--x:24%;--y:82%;"><img
-                    src="https://randomuser.me/api/portraits/men/45.jpg" alt=""></div>
-                <div class="ts-avatar" style="--x:50%;--y:92%;"><img
-                    src="https://randomuser.me/api/portraits/men/32.jpg" alt=""></div>
-                <div class="ts-avatar" style="--x:82%;--y:22%;"><img
-                    src="https://randomuser.me/api/portraits/women/25.jpg" alt=""></div>
-                <div class="ts-avatar" style="--x:94%;--y:56%;"><img
-                    src="https://randomuser.me/api/portraits/men/11.jpg" alt=""></div>
-              </div>
+            <div class="ts-stage" role="region" aria-label="Testimonials story carousel">
+              <!-- Story progress bars (Instagram-style) -->
+              <div class="ts-progress-bars" id="tsProgressBars"></div>
 
-              <!-- cards container (JS inserts cards) -->
-              <div class="ts-cards" id="tsCards" aria-live="polite"></div>
+              <!-- Stories container (JS inserts story slides) -->
+              <div class="ts-stories" id="tsStories" aria-live="polite"></div>
 
-              <!-- dots fixed at bottom center -->
-              <div class="ts-dots" id="tsDots" role="tablist" aria-label="Testimonial pages"></div>
+              <!-- Story dots (Instagram-style small dots) -->
+              <div class="ts-story-dots" id="tsStoryDots" role="tablist" aria-label="Testimonial stories"></div>
             </div>
           </div>
         </section>
@@ -255,6 +244,9 @@
 
 
 
+        <script>
+          window.__TESTIMONIALS__ = <%- JSON.stringify(testimonials || []) %>;
+        </script>
         <script src="/js/main.js"></script>
 
         <script>
