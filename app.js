@@ -223,6 +223,43 @@ app.get('/', async function (req, res) {
     }
 });
 
+// Recent Trip Detail Route
+app.get('/recent-trip/:id', async function (req, res) {
+    try {
+        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+            return res.status(404).render('error', {
+                message: 'Invalid trip ID',
+                user: req.user,
+                isAuthenticated: req.isAuthenticated()
+            });
+        }
+        
+        const trip = await RecentTrip.findById(req.params.id);
+        
+        if (!trip) {
+            return res.status(404).render('error', {
+                message: 'Recent trip not found',
+                user: req.user,
+                isAuthenticated: req.isAuthenticated()
+            });
+        }
+        
+        res.render('recent-trip-detail', {
+            user: req.user,
+            isAuthenticated: req.isAuthenticated(),
+            trip: trip,
+            currentPage: 'recent-trips'
+        });
+    } catch (error) {
+        console.error('Error fetching recent trip:', error);
+        res.status(500).render('error', {
+            message: 'Error loading recent trip',
+            user: req.user,
+            isAuthenticated: req.isAuthenticated()
+        });
+    }
+});
+
 // Debug dropdown route
 app.get('/debug-dropdown', function (req, res) {
     res.render('debug-dropdown', {

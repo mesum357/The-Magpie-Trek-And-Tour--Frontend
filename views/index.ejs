@@ -24,10 +24,13 @@
       <section class="hero">
         <div class="hero-bg-slider">
           <div class="hero-slide active"
-            style="background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('/images/hero-img1.webp');">
+            style="background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('/images/home1.jpg');">
           </div>
           <div class="hero-slide"
-            style="background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('/images/hero-img2.webp');">
+            style="background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('/images/home4.jpg');">
+          </div>
+          <div class="hero-slide"
+            style="background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('/images/home7.jpeg');">
           </div>
         </div>
         <div class="container hero-inner">
@@ -82,16 +85,21 @@
                 (fullImageUrl.startsWith('/') ? '' : '/' ) + fullImageUrl; } %>
 
                 <div class="col-12 col-md-6">
-                  <div class="trip-card" style="background-image: url('<%= fullImageUrl %>');">
-                    <div class="trip-card-overlay">
-                      <h3 class="trip-card-title">
-                        <%= trip.title %>
-                      </h3>
-                      <p class="trip-card-desc">
-                        <%= trip.description %>
-                      </p>
+                  <a href="/recent-trip/<%= trip._id %>" class="trip-card-link">
+                    <div class="trip-card" style="background-image: url('<%= fullImageUrl %>');">
+                      <div class="trip-card-overlay">
+                        <div class="trip-card-content">
+                          <h3 class="trip-card-title">
+                            <%= trip.title %>
+                          </h3>
+                          <p class="trip-card-desc">
+                            <%= trip.description %>
+                          </p>
+                          <span class="btn-trip-detail mt-3">View Details <i class="bi bi-arrow-right"></i></span>
+                        </div>
+                      </div>
                     </div>
-                  </div>
+                  </a>
                 </div>
                 <% }); %>
                   <% } else { %>
@@ -303,6 +311,8 @@
               currentSlide = (currentSlide + 1) % slides.length;
               slides[currentSlide].classList.add('active');
             }
+
+            setInterval(nextSlide, 3000);
 
 
             // Search bar functionality removed
