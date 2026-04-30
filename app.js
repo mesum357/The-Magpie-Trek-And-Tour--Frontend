@@ -403,6 +403,14 @@ app.get("/faq", function (req, res) {
     });
 });
 
+app.get("/certifications", function (req, res) {
+    res.render("certifications", {
+        user: req.user,
+        isAuthenticated: req.isAuthenticated(),
+        currentPage: 'certifications'
+    });
+});
+
 app.get("/hiking", async function (req, res) {
     try {
         // Get search parameters from query string
