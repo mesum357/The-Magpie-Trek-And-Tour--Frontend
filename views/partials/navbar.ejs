@@ -626,6 +626,7 @@
 
     if (cartCount) {
       cartCount.textContent = cart.length;
+      cartCount.style.display = cart.length > 0 ? 'block' : 'none';
     }
 
     if (cartItems) {

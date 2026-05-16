@@ -355,28 +355,10 @@
     return false;
   };
 
-  // Cart functionality
+  // Cart count sync only — cart UI is handled in navbar.ejs (toggleCartPopup)
   function initializeCart() {
-    const cartButton = document.getElementById('cartButton');
-    const cartCount = document.getElementById('cartCount');
-
-    if (cartButton && cartCount) {
-      // Load cart count from localStorage
-      const cartItems = JSON.parse(localStorage.getItem('cartItems') || '[]');
-      updateCartCount(cartItems.length);
-
-      // Add click event to cart button
-      cartButton.addEventListener('click', function () {
-        console.log('Cart button clicked');
-        // You can add cart modal or redirect to cart page here
-        // For now, just show an alert
-        if (cartItems.length === 0) {
-          alert('Your cart is empty!');
-        } else {
-          alert(`You have ${cartItems.length} item(s) in your cart.`);
-        }
-      });
-    }
+    const cartItems = JSON.parse(localStorage.getItem('cartItems') || '[]');
+    updateCartCount(cartItems.length);
   }
 
   function updateCartCount(count) {
@@ -458,9 +440,9 @@
 
     if (window.addToCart) {
       window.addToCart(testItem);
-      alert('Test item added to cart! Check the cart icon in the navbar.');
+      console.log('Test item added to cart.');
     } else {
-      alert('Cart functionality not available yet.');
+      console.warn('Cart functionality not available yet.');
     }
   };
 

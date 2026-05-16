@@ -43,6 +43,16 @@
       height: 100%;
     }
 
+    .certificate-card-clickable {
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .certificate-card-clickable:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+    }
+
     .certificate-image-wrap {
       background: #f3f4f6;
       height: 280px;
@@ -55,7 +65,8 @@
     .certificate-image-wrap img {
       width: 100%;
       height: 100%;
-      object-fit: cover;
+      object-fit: contain;
+      background: #fff;
     }
 
     .certificate-body {
@@ -71,8 +82,89 @@
 
     .certificate-note {
       color: #6b7280;
-      margin-bottom: 0.9rem;
+      margin-bottom: 0;
       font-size: 0.92rem;
+    }
+
+    .secp-preview {
+      flex-direction: column;
+      gap: 0.75rem;
+      color: #198754;
+      border: 0;
+      background: #f3f4f6;
+      width: 100%;
+      padding: 0;
+    }
+
+    .secp-preview i {
+      font-size: 3rem;
+    }
+
+    .secp-preview span {
+      font-weight: 600;
+      color: #374151;
+    }
+
+    .certificate-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 10050;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.92);
+      padding: 1rem;
+    }
+
+    .certificate-modal.is-open {
+      display: flex;
+    }
+
+    .certificate-modal-close {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      z-index: 2;
+      width: 44px;
+      height: 44px;
+      border: none;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+      font-size: 1.75rem;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .certificate-modal-close:hover {
+      background: rgba(255, 255, 255, 0.28);
+    }
+
+    .certificate-modal-content {
+      width: 100%;
+      height: 100%;
+      max-width: 1200px;
+      max-height: calc(100vh - 2rem);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .certificate-modal-content img,
+    .certificate-modal-content iframe {
+      max-width: 100%;
+      max-height: calc(100vh - 2rem);
+      width: 100%;
+      height: calc(100vh - 2rem);
+      border: none;
+      border-radius: 8px;
+      object-fit: contain;
+      background: #fff;
+    }
+
+    .certificate-modal-content img {
+      width: auto;
+      height: auto;
     }
   </style>
 </head>
@@ -100,77 +192,82 @@
                   <p class="certificate-note">
                     Certificate of Incorporation
                   </p>
-                  <a class="btn btn-success" href="/images/certificates/Certificate%20of%20Incorporation.pdf" target="_blank" rel="noopener">
-                    <i class="bi bi-file-earmark-pdf me-2"></i>Open PDF
-                  </a>
                 </div>
+                <button type="button" class="secp-preview certificate-card-clickable" data-certificate-type="pdf"
+                  data-certificate-src="/images/certificates/Certificate%20of%20Incorporation.pdf"
+                  aria-label="View SECP certificate">
+                  <div class="certificate-image-wrap">
+                    <i class="bi bi-file-earmark-pdf" aria-hidden="true"></i>
+                    <span>Click to view full certificate</span>
+                  </div>
+                </button>
               </div>
             </div>
           </div>
 
           <div class="row g-4">
             <div class="col-lg-4 col-md-6">
-              <div class="certificate-card">
+              <div class="certificate-card certificate-card-clickable" role="button" tabindex="0"
+                data-certificate-type="image"
+                data-certificate-src="/images/certificates/WhatsApp%20Image%202026-04-29%20at%2010.02.13%20PM.jpeg"
+                aria-label="View certificate">
                 <div class="certificate-image-wrap">
-                  <img src="/images/certificates/WhatsApp%20Image%202026-04-29%20at%2010.02.13%20PM.jpeg" alt="Certificate image 1">
-                </div>
-                <div class="certificate-body">
-                  <h3 class="certificate-title">Supporting Certificate 1</h3>
+                  <img src="/images/certificates/WhatsApp%20Image%202026-04-29%20at%2010.02.13%20PM.jpeg" alt="">
                 </div>
               </div>
             </div>
 
             <div class="col-lg-4 col-md-6">
-              <div class="certificate-card">
+              <div class="certificate-card certificate-card-clickable" role="button" tabindex="0"
+                data-certificate-type="image"
+                data-certificate-src="/images/certificates/WhatsApp%20Image%202026-04-29%20at%2010.02.14%20P.jpeg"
+                aria-label="View certificate">
                 <div class="certificate-image-wrap">
-                  <img src="/images/certificates/WhatsApp%20Image%202026-04-29%20at%2010.02.14%20P.jpeg" alt="Certificate image 2">
-                </div>
-                <div class="certificate-body">
-                  <h3 class="certificate-title">Supporting Certificate 2</h3>
+                  <img src="/images/certificates/WhatsApp%20Image%202026-04-29%20at%2010.02.14%20P.jpeg" alt="">
                 </div>
               </div>
             </div>
 
             <div class="col-lg-4 col-md-6">
-              <div class="certificate-card">
+              <div class="certificate-card certificate-card-clickable" role="button" tabindex="0"
+                data-certificate-type="image"
+                data-certificate-src="/images/certificates/WhatsApp%20Image%202026-04-29%20at%2010.02.14%20PM.jpeg"
+                aria-label="View certificate">
                 <div class="certificate-image-wrap">
-                  <img src="/images/certificates/WhatsApp%20Image%202026-04-29%20at%2010.02.14%20PM.jpeg" alt="Certificate image 3">
-                </div>
-                <div class="certificate-body">
-                  <h3 class="certificate-title">Supporting Certificate 3</h3>
+                  <img src="/images/certificates/WhatsApp%20Image%202026-04-29%20at%2010.02.14%20PM.jpeg" alt="">
                 </div>
               </div>
             </div>
 
             <div class="col-lg-4 col-md-6">
-              <div class="certificate-card">
+              <div class="certificate-card certificate-card-clickable" role="button" tabindex="0"
+                data-certificate-type="image"
+                data-certificate-src="/images/certificates/WhatsApp%20Image%202026-04-29%20at%2010.02.15%20PM.jpeg"
+                aria-label="View certificate">
                 <div class="certificate-image-wrap">
-                  <img src="/images/certificates/WhatsApp%20Image%202026-04-29%20at%2010.02.15%20PM.jpeg" alt="Certificate image 4">
-                </div>
-                <div class="certificate-body">
-                  <h3 class="certificate-title">Supporting Certificate 4</h3>
+                  <img src="/images/certificates/WhatsApp%20Image%202026-04-29%20at%2010.02.15%20PM.jpeg" alt="">
                 </div>
               </div>
             </div>
 
             <div class="col-lg-4 col-md-6">
-              <div class="certificate-card">
+              <div class="certificate-card certificate-card-clickable" role="button" tabindex="0"
+                data-certificate-type="image"
+                data-certificate-src="/images/certificates/WhatsApp%20Image%202026-04-29%20at%2010.02.16%20PM.jpeg"
+                aria-label="View certificate">
                 <div class="certificate-image-wrap">
-                  <img src="/images/certificates/WhatsApp%20Image%202026-04-29%20at%2010.02.16%20PM.jpeg" alt="Certificate image 5">
-                </div>
-                <div class="certificate-body">
-                  <h3 class="certificate-title">Supporting Certificate 5</h3>
+                  <img src="/images/certificates/WhatsApp%20Image%202026-04-29%20at%2010.02.16%20PM.jpeg" alt="">
                 </div>
               </div>
             </div>
 
             <div class="col-lg-4 col-md-6">
-              <div class="certificate-card">
+              <div class="certificate-card certificate-card-clickable" role="button" tabindex="0"
+                data-certificate-type="image"
+                data-certificate-src="/images/certificates/WhatsApp%20Image%202026-04-29%20at%2010.02.19%20PM.jpeg"
+                aria-label="View certificate">
                 <div class="certificate-image-wrap">
-                  <img src="/images/certificates/WhatsApp%20Image%202026-04-29%20at%2010.02.19%20PM.jpeg" alt="Certificate image 6">
-                </div>
-                <div class="certificate-body">
-                  <h3 class="certificate-title">Supporting Certificate 6</h3>
+                  <img src="/images/certificates/WhatsApp%20Image%202026-04-29%20at%2010.02.19%20PM.jpeg" alt="">
                 </div>
               </div>
             </div>
@@ -178,9 +275,73 @@
         </div>
       </section>
 
+      <div id="certificateModal" class="certificate-modal" role="dialog" aria-modal="true"
+        aria-label="Certificate viewer" hidden>
+        <button type="button" class="certificate-modal-close" id="certificateModalClose"
+          aria-label="Close">&times;</button>
+        <div class="certificate-modal-content" id="certificateModalContent"></div>
+      </div>
+
       <%- include('partials/footer') %>
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script>
+          (function () {
+            const modal = document.getElementById('certificateModal');
+            const modalContent = document.getElementById('certificateModalContent');
+            const closeBtn = document.getElementById('certificateModalClose');
+            const triggers = document.querySelectorAll('[data-certificate-type][data-certificate-src]');
+
+            function closeModal() {
+              modal.classList.remove('is-open');
+              modal.hidden = true;
+              modalContent.innerHTML = '';
+              document.body.style.overflow = '';
+            }
+
+            function openModal(type, src) {
+              modalContent.innerHTML = '';
+
+              if (type === 'pdf') {
+                const iframe = document.createElement('iframe');
+                iframe.src = src;
+                iframe.title = 'Certificate PDF';
+                modalContent.appendChild(iframe);
+              } else {
+                const img = document.createElement('img');
+                img.src = src;
+                img.alt = 'Certificate';
+                modalContent.appendChild(img);
+              }
+
+              modal.hidden = false;
+              modal.classList.add('is-open');
+              document.body.style.overflow = 'hidden';
+              closeBtn.focus();
+            }
+
+            triggers.forEach(function (el) {
+              el.addEventListener('click', function () {
+                openModal(el.dataset.certificateType, el.dataset.certificateSrc);
+              });
+
+              el.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  openModal(el.dataset.certificateType, el.dataset.certificateSrc);
+                }
+              });
+            });
+
+            closeBtn.addEventListener('click', closeModal);
+            modal.addEventListener('click', function (e) {
+              if (e.target === modal) closeModal();
+            });
+            document.addEventListener('keydown', function (e) {
+              if (e.key === 'Escape' && modal.classList.contains('is-open')) closeModal();
+            });
+          })();
+        </script>
 </body>
 
 </html>
