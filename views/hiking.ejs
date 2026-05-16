@@ -630,7 +630,16 @@
 
                       // Test Add to Cart Function
                       window.testAddToCart = function () {
-                        alert('Add to Cart functionality would be implemented here!');
+                        if (typeof window.addToCart === 'function') {
+                          window.addToCart({
+                            id: 'hiking-test-' + Date.now(),
+                            name: 'Hiking Adventure Tour',
+                            price: 99.99,
+                            image: '/images/hero-img1.webp'
+                          });
+                        } else {
+                          console.log('Add to Cart: use the Explore button on a trail card.');
+                        }
                       };
 
                       // Explore Trail handled inline on button (navigates to /payment/:id)

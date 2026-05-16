@@ -330,7 +330,7 @@
             <h6 class="mb-0">Shopping Cart</h6>
             <button type="button" class="btn-close" onclick="closeCartPopup()"></button>
           </div>
-          <div class="cart-popup-body" id="cartItems">
+          <div class="cart-popup-body" id="cartPopupBody">
             <div class="empty-cart text-center py-4">
               <i class="bi bi-cart-x text-muted" style="font-size: 2rem;"></i>
               <p class="text-muted mt-2 mb-0">Your cart is empty</p>
@@ -566,13 +566,30 @@
   })();
 
   // Cart System JavaScript
-  let cart = JSON.parse(localStorage.getItem('cart')) || [];
+  const CART_STORAGE_KEY = 'cart';
+  const LEGACY_CART_STORAGE_KEY = 'cartItems';
+
+  function migrateLegacyCartStorage() {
+    if (window.__legacyCartMigrated) return;
+
+    // Legacy `cartItems` only drove a duplicate badge count and cart-click alerts — drop it.
+    localStorage.removeItem(LEGACY_CART_STORAGE_KEY);
+    window.__legacyCartMigrated = true;
+  }
+
+  window.migrateLegacyCartStorage = migrateLegacyCartStorage;
+
+  let cart = JSON.parse(localStorage.getItem(CART_STORAGE_KEY) || '[]');
+  migrateLegacyCartStorage();
+  cart = JSON.parse(localStorage.getItem(CART_STORAGE_KEY) || '[]');
 
   // Notification System JavaScript
   let notifications = JSON.parse(localStorage.getItem('notifications')) || [];
 
   // Initialize cart and notifications on page load
   document.addEventListener('DOMContentLoaded', function () {
+    migrateLegacyCartStorage();
+    cart = JSON.parse(localStorage.getItem(CART_STORAGE_KEY) || '[]');
     updateCartDisplay();
     updateNotificationDisplay();
 
@@ -600,7 +617,7 @@
 
     // Add to cart
     cart.push(tourData);
-    localStorage.setItem('cart', JSON.stringify(cart));
+    localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
     updateCartDisplay();
     showNotification('Added to cart successfully!', 'success');
   }
@@ -619,8 +636,9 @@
 
   // Update cart display
   function updateCartDisplay() {
+    cart = JSON.parse(localStorage.getItem(CART_STORAGE_KEY) || '[]');
     const cartCount = document.getElementById('cartCount');
-    const cartItems = document.getElementById('cartItems');
+    const cartItems = document.getElementById('cartPopupBody');
     const cartFooter = document.getElementById('cartFooter');
     const cartTotal = document.getElementById('cartTotal');
 

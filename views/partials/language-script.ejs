@@ -355,10 +355,40 @@
     return false;
   };
 
-  // Cart count sync only — cart UI is handled in navbar.ejs (toggleCartPopup)
+  // Cart uses the same localStorage key as navbar.ejs (`cart`). Legacy `cartItems` is migrated in navbar.
+  const CART_STORAGE_KEY = 'cart';
+  const LEGACY_CART_STORAGE_KEY = 'cartItems';
+
+  function readCartFromStorage() {
+    if (typeof window.migrateLegacyCartStorage === 'function') {
+      window.migrateLegacyCartStorage();
+    }
+    try {
+      const cart = JSON.parse(localStorage.getItem(CART_STORAGE_KEY) || '[]');
+      return Array.isArray(cart) ? cart : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function saveCartToStorage(cart) {
+    localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
+    if (typeof updateCartDisplay === 'function') {
+      updateCartDisplay();
+    } else {
+      updateCartCount(cart.length);
+    }
+  }
+
   function initializeCart() {
-    const cartItems = JSON.parse(localStorage.getItem('cartItems') || '[]');
-    updateCartCount(cartItems.length);
+    if (typeof window.migrateLegacyCartStorage === 'function') {
+      window.migrateLegacyCartStorage();
+    }
+    if (typeof updateCartDisplay === 'function') {
+      updateCartDisplay();
+    } else {
+      updateCartCount(readCartFromStorage().length);
+    }
   }
 
   function updateCartCount(count) {
@@ -369,62 +399,52 @@
     }
   }
 
-  // Make updateCartCount globally available
   window.updateCartCount = updateCartCount;
 
-  // Function to add item to cart
   window.addToCart = function (item) {
-    const cartItems = JSON.parse(localStorage.getItem('cartItems') || '[]');
+    if (!item || item.id == null) return false;
 
-    // Check if item already exists
-    const existingItem = cartItems.find(cartItem => cartItem.id === item.id);
+    const cart = readCartFromStorage();
+    const existingItem = cart.find(function (cartItem) {
+      return String(cartItem.id) === String(item.id);
+    });
 
     if (existingItem) {
-      existingItem.quantity += item.quantity || 1;
-    } else {
-      cartItems.push({
-        id: item.id,
-        name: item.name,
-        price: item.price,
-        quantity: item.quantity || 1,
-        image: item.image || '',
-        addedAt: new Date().toISOString()
-      });
+      if (typeof showNotification === 'function') {
+        showNotification('Item already in cart!', 'warning');
+      }
+      return false;
     }
 
-    // Save to localStorage
-    localStorage.setItem('cartItems', JSON.stringify(cartItems));
+    cart.push({
+      id: item.id,
+      title: item.title || item.name || 'Tour',
+      location: item.location || '',
+      price: item.price || 0,
+      imageUrl: item.imageUrl || item.image || '/images/hero-img1.webp'
+    });
 
-    // Update cart count
-    updateCartCount(cartItems.length);
-
-    // Show success message
-    console.log('Item added to cart:', item.name);
-
-    // You can add a toast notification here
+    saveCartToStorage(cart);
+    console.log('Item added to cart:', item.name || item.title);
     return true;
   };
 
-  // Function to remove item from cart
   window.removeFromCart = function (itemId) {
-    const cartItems = JSON.parse(localStorage.getItem('cartItems') || '[]');
-    const updatedItems = cartItems.filter(item => item.id !== itemId);
-
-    localStorage.setItem('cartItems', JSON.stringify(updatedItems));
-    updateCartCount(updatedItems.length);
-
+    const cart = readCartFromStorage().filter(function (item) {
+      return String(item.id) !== String(itemId);
+    });
+    saveCartToStorage(cart);
     return true;
   };
 
-  // Function to get cart items
   window.getCartItems = function () {
-    return JSON.parse(localStorage.getItem('cartItems') || '[]');
+    return readCartFromStorage();
   };
 
-  // Function to clear cart
   window.clearCart = function () {
-    localStorage.removeItem('cartItems');
-    updateCartCount(0);
+    localStorage.removeItem(CART_STORAGE_KEY);
+    localStorage.removeItem(LEGACY_CART_STORAGE_KEY);
+    saveCartToStorage([]);
     return true;
   };
 
