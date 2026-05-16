@@ -508,6 +508,33 @@ bookingSchema.pre('save', function (next) {
 
 const Booking = mongoose.models.Booking || mongoose.model('Booking', bookingSchema);
 
+function stripHtmlText(value) {
+    if (value == null) return '';
+    return String(value).replace(/<[^>]*>/gi, '').trim();
+}
+
+function sanitizeMediaUrl(url) {
+    if (!url || typeof url !== 'string') return '';
+    const trimmed = url.trim();
+    if (trimmed.startsWith('/') && !trimmed.startsWith('//')) return trimmed;
+    if (/^https?:\/\//i.test(trimmed)) return trimmed;
+    return '';
+}
+
+function sanitizeTestimonialFields(doc) {
+    if (!doc) return doc;
+    if (doc.name != null) doc.name = stripHtmlText(doc.name);
+    if (doc.country != null) doc.country = stripHtmlText(doc.country);
+    if (doc.avatarUrl != null) doc.avatarUrl = sanitizeMediaUrl(doc.avatarUrl);
+    if (doc.storyImgUrl != null) doc.storyImgUrl = sanitizeMediaUrl(doc.storyImgUrl);
+    return doc;
+}
+
+function sanitizeTestimonialForPublic(doc) {
+    const plain = doc && typeof doc.toObject === 'function' ? doc.toObject() : { ...doc };
+    return sanitizeTestimonialFields(plain);
+}
+
 // Testimonial Schema
 const testimonialSchema = new mongoose.Schema({
     name: {
@@ -543,6 +570,7 @@ const testimonialSchema = new mongoose.Schema({
 });
 
 testimonialSchema.pre('save', function (next) {
+    sanitizeTestimonialFields(this);
     this.updatedAt = Date.now();
     next();
 });
@@ -575,6 +603,17 @@ paymentRequestSchema.pre('save', function (next) {
 
 const PaymentRequest = mongoose.models.PaymentRequest || mongoose.model('PaymentRequest', paymentRequestSchema);
 
-module.exports = { User, Order, RecentTrip, TourPackage, Hiking, Review, Booking, PaymentRequest, Testimonial };
+module.exports = {
+    User,
+    Order,
+    RecentTrip,
+    TourPackage,
+    Hiking,
+    Review,
+    Booking,
+    PaymentRequest,
+    Testimonial,
+    sanitizeTestimonialForPublic
+};
 
 

@@ -184,6 +184,23 @@ window.MagpieWebsite = {
    Uses window.__TESTIMONIALS__ injected from server
    =================================================== */
 (function () {
+  function escapeHtml(value) {
+    return String(value == null ? '' : value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function safeMediaUrl(url) {
+    var value = String(url || '').trim();
+    if (!value) return '';
+    if (value.indexOf('/') === 0 && value.indexOf('//') !== 0) return escapeHtml(value);
+    if (/^https?:\/\//i.test(value)) return escapeHtml(value);
+    return '';
+  }
+
   // Read testimonials from server-injected data
   var serverData = window.__TESTIMONIALS__ || [];
 
@@ -192,9 +209,11 @@ window.MagpieWebsite = {
     return {
       name: t.name || 'Guest',
       loc: t.country || '',
-      avatar: t.avatarUrl || '',
-      storyImg: t.storyImgUrl || ''
+      avatar: safeMediaUrl(t.avatarUrl),
+      storyImg: safeMediaUrl(t.storyImgUrl)
     };
+  }).filter(function (t) {
+    return t.name && t.loc;
   });
 
   // If no testimonials, hide the section and exit
@@ -219,18 +238,20 @@ window.MagpieWebsite = {
     story.className = 'ts-story';
     story.setAttribute('role', 'group');
     story.setAttribute('aria-roledescription', 'story');
-    story.setAttribute('aria-label', t.name + ', ' + t.loc);
+    story.setAttribute('aria-label', (t.name + ', ' + t.loc).replace(/</g, ''));
     story.dataset.index = i;
 
     var imgSrc = t.storyImg || '';
+    var safeName = escapeHtml(t.name);
+    var safeLoc = escapeHtml(t.loc);
     story.innerHTML =
-      '<img class="ts-story-img" src="' + imgSrc + '" alt="Testimonial from ' + t.name + '" loading="lazy">' +
+      (imgSrc ? '<img class="ts-story-img" src="' + imgSrc + '" alt="Testimonial from ' + safeName + '" loading="lazy">' : '') +
       '<div class="ts-story-overlay">' +
       '<div class="ts-story-author">' +
-      (t.avatar ? '<img class="ts-story-avatar" src="' + t.avatar + '" alt="' + t.name + '">' : '') +
+      (t.avatar ? '<img class="ts-story-avatar" src="' + t.avatar + '" alt="' + safeName + '">' : '') +
       '<div>' +
-      '<span class="ts-story-name">' + t.name + '</span>' +
-      '<span class="ts-story-loc">' + t.loc + '</span>' +
+      '<span class="ts-story-name">' + safeName + '</span>' +
+      '<span class="ts-story-loc">' + safeLoc + '</span>' +
       '</div>' +
       '</div>' +
       '</div>';

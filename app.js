@@ -15,7 +15,7 @@ const fs = require('fs');
 
 
 // Import Mongoose models from db.js
-const { User, Gallery, TourPackage, Hiking, RecentTrip, Review, Booking, PaymentRequest, Testimonial } = require('./db');
+const { User, Gallery, TourPackage, Hiking, RecentTrip, Review, Booking, PaymentRequest, Testimonial, sanitizeTestimonialForPublic } = require('./db');
 
 // Stripe removed - manual payments only
 
@@ -195,9 +195,11 @@ app.get('/', async function (req, res) {
             .sort({ createdAt: -1 })
             .limit(4);
 
-        // Fetch active testimonials
-        const testimonials = await Testimonial.find({ active: true })
-            .sort({ createdAt: -1 });
+        // Fetch active testimonials (sanitized — blocks stored HTML/JS in name/country)
+        const testimonials = (await Testimonial.find({ active: true })
+            .sort({ createdAt: -1 }))
+            .map(sanitizeTestimonialForPublic)
+            .filter(function (t) { return t.name && t.country; });
 
         res.render('index', {
 
@@ -365,8 +367,10 @@ app.get('/logout', function (req, res, next) {
 // Public routes - accessible to everyone
 app.get("/about", async function (req, res) {
     try {
-        const testimonials = await Testimonial.find({ active: true })
-            .sort({ createdAt: -1 });
+        const testimonials = (await Testimonial.find({ active: true })
+            .sort({ createdAt: -1 }))
+            .map(sanitizeTestimonialForPublic)
+            .filter(function (t) { return t.name && t.country; });
 
         res.render("about", {
             user: req.user,
